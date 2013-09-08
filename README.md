@@ -100,7 +100,7 @@ html(lang="en")
   body
     p Hello Substrat!
 
-  !#{substrat} // Include the bootstrap code for auto reload
+  !{substrat} // Include the bootstrap code for auto reload
 ```
 
 
