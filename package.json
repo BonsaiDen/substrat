@@ -1,0 +1,38 @@
+{
+  "version": "0.1.0",
+  "name": "substrat",
+  "description": "Simple, automatic build system for single page web applications. ",
+  "keywords": [
+    "build",
+    "html5",
+    "jade",
+    "less",
+    "javascript",
+    "static"
+  ],
+
+  "homepage": "",
+  "author": "Ivo Wetzel <ivo.wetzel@googlemail.com> (https://github.com/BonsaiDen)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/BonsaiDen/substrat"
+  },
+  "bugs": {
+    "url": "https://github.com/BonsaiDen/substrat/issues"
+  },
+
+  "dependencies": {
+    "chokidar": "0.6.3",
+    "colors": "0.6.2",
+    "fs.extra": "1.2.1",
+    "node-static": "0.7.1"
+  },
+
+  "engines": {
+    "node": ">=0.8",
+    "npm": ">= 1"
+  },
+  "license": "MIT"
+
+}
+
