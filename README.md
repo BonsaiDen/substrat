@@ -24,7 +24,7 @@ automatically reload the page when needed.
 ## Getting Started
 
 In order to automatically build a project with JavaScript, 
-[Jade](http.//jade-lang.org/) and [LessCSS](http://lesscss.org/) we'll be 
+[Jade](http://jade-lang.com/) and [LessCSS](http://lesscss.org/) we'll be 
 utilizing the `compile` tasks to convert *jade* to *html*, *less* to *css* and 
 minifiy our JavaScript when running in production mode.
 
@@ -134,7 +134,7 @@ At the moment, **Substrat** ships with the following built-in tasks:
 
     - `jade`
 
-        Generates `html` files from [Jade](http.//jade-lang.org/), removes 
+        Generates `html` files from [Jade](http://jade-lang.com/), removes 
         whitespace from the output if `compress = true`.
 
     - `sass`
