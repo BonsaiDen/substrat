@@ -13,7 +13,7 @@ var generate = {
     },
 
     run: function(e, done) {
-        done(null, new Error('Task not implemented.'));
+        done(new Error('Task not implemented.'));
     }
 
 };

@@ -31,18 +31,18 @@ var types = {
 
             if (e.options.compress) {
 
-                var m = uglifyjs.minify(e.source, {
+                var m = uglifyjs.minify(e.path, {
                     sourceRoot: path.dirname(e.options.dest),
-                    outSourceMap: path.basename(e.source)
+                    outSourceMap: path.basename(e.path)
                 });
 
-                done(null, e.name, [
-                    m.code + '\n//@ sourceMappingURL=' + e.name[1],
+                done(null, [
+                    m.code + '\n//@sourceMappingURL=' + e.mapped[1],
                     m.map.toString()
                 ]);
 
             } else {
-                done(null, e.name, e.data.toString());
+                done(null, e.data.toString());
             }
 
         }
@@ -61,7 +61,8 @@ var types = {
         run: function(e, done) {
 
             var parser = new less.Parser({
-                filename: e.name
+                paths: [e.options.src],
+                filename: e.source
             });
 
             parser.parse(e.data.toString(), function(err, tree) {
@@ -69,7 +70,7 @@ var types = {
                     done(err);
 
                 } else {
-                    done(null, e.name, tree.toCSS({
+                    done(null, tree.toCSS({
                         compress: e.options.compress
                     }));
                 }
@@ -84,7 +85,7 @@ var types = {
         mode: Task.Each,
         data: true,
 
-        map: function(options, file) {
+        map: function(e, file) {
             return file.replace(/\.jade$/, '.html');
         },
 
@@ -95,7 +96,8 @@ var types = {
                     pretty: !e.options.compress,
                     substrat: e.substrat
                 });
-                done(null, e.name, jade.render(e.data.toString(), locals));
+
+                done(null, jade.render(e.data.toString(), locals));
 
             } catch(err) {
                 done(err);

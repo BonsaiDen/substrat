@@ -20,7 +20,7 @@ var types = {
         map: function(e, file) {
 
             if (e.options.compress) {
-                return [file.replace(/\.js$/, '.min.js'), file + '.map'];
+                return [e.config.file, e.config.file + '.map'];
 
             } else {
                 return file;
@@ -33,16 +33,16 @@ var types = {
             if (e.options.compress) {
 
                 var sources = e.all.map(function(f) {
-                    return f.source.toString();
+                    return f.path;
                 });
 
                 var m = uglifyjs.minify(sources, {
                     sourceRoot: path.dirname(e.options.dest),
-                    outSourceMap: path.basename(e.source)
+                    outSourceMap: path.basename(e.path)
                 });
 
-                done(null, e.name, [
-                    m.code + '\n//@ sourceMappingURL=' + e.name[1],
+                done(null, [
+                    m.code + '\n//@sourceMappingURL=' + e.mapped[1],
                     m.map.toString()
                 ]);
 
@@ -52,7 +52,7 @@ var types = {
                     return f.data.toString();
                 });
 
-                done(null, e.name, data.join('\n\n;'));
+                done(null, data.join('\n\n;'));
 
             }
 
@@ -65,12 +65,38 @@ var types = {
         mode: Task.All,
         data: true,
 
-        map: function(e, file) {
-            return file.replace(/\.less$/, '.css');
+        map: function(e) {
+            return e.config.file;
         },
 
         run: function(e, done) {
-            done(null, e.name, '');
+
+            var data = [];
+            util.async(e.all, function(file, next) {
+
+                var parser = new less.Parser({
+                    paths: [e.options.src],
+                    filename: file.source
+                });
+
+                parser.parse(file.data.toString(), function(err, tree) {
+
+                    if (err) {
+                        done(err);
+
+                    } else {
+                        data.push(tree.toCSS({
+                            compress: e.options.compress
+                        }));
+                        next();
+                    }
+
+                });
+
+            }, function() {
+                done(null, data.join('\n\n'));
+            });
+
         }
 
     }

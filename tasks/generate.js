@@ -15,13 +15,13 @@ var generate = {
     run: function(e, done) {
 
         if (typeof e.config.data === 'function') {
-            done(null, e.name, e.config.data());
+            done(null, e.config.data());
 
         } else if (typeof e.config.data === 'object'){
-            done(null, e.name, JSON.stringify(e.config.data));
+            done(null, JSON.stringify(e.config.data));
 
         } else {
-            done(null, e.name, JSON.stringify(e.config.data));
+            done(null, JSON.stringify(e.config.data));
         }
 
     }

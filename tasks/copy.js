@@ -16,16 +16,16 @@ var copy = {
 
     run: function(e, done) {
 
-        var target = path.join(e.options.dest, e.name);
-        fs.mkdirp(path.dirname(target), function() {
+        var dest = path.join(e.options.dest, e.mapped);
+        fs.mkdirp(path.dirname(dest), function() {
 
             // TODO prevent multiple calls to done
-            var reader = fs.createReadStream(e.source);
+            var reader = fs.createReadStream(e.path);
             reader.on('error', function(err) {
                 done(err);
             });
 
-            var writer = fs.createWriteStream(target);
+            var writer = fs.createWriteStream(dest);
             writer.on('error', function(err) {
                 done(err);
             });
