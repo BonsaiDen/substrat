@@ -11,91 +11,91 @@ page applications in mind.
 2. Require and use it in your build script (e.g. [Grunt](http://gruntjs.com))
     
 ```javascript
-    var substrat = require('substrat');
+var substrat = require('substrat');
 
-    // Setup the file patterns
-    var patterns = {
+// Setup the file patterns
+var patterns = {
 
-        js: {
-            // Match all source files of the application, and put app and config
-            // at the end when generating a array of the filenames from this pattern
-            app: substrat.pattern(/js\/.*\.js$/).last('js/config.js', 'js/app.js'),
+    js: {
+        // Match all source files of the application, and put app and config
+        // at the end when generating a array of the filenames from this pattern
+        app: substrat.pattern(/js\/.*\.js$/).last('js/config.js', 'js/app.js'),
 
-            // Match all the javascript source files of the libraries, but ignore any pre-minified ones
-            lib: substrat.pattern(/lib\/.*\.js$/).not(/\.min\.js$/)
-        },
+        // Match all the javascript source files of the libraries, but ignore any pre-minified ones
+        lib: substrat.pattern(/lib\/.*\.js$/).not(/\.min\.js$/)
+    },
 
-        compile: {
-            jade: substrat.pattern(/\.jade$/),
-            less: substrat.pattern(/\.less$/)
-        },
+    compile: {
+        jade: substrat.pattern(/\.jade$/),
+        less: substrat.pattern(/\.less$/)
+    },
 
-        // Match all style sheets both generated and existing ones
-        // but put the generated ones at the end when generating a array of the
-        // filenames from this pattern
-        style: substrat.pattern(/(\.css|\.less)$/).last(/\.less$/),
+    // Match all style sheets both generated and existing ones
+    // but put the generated ones at the end when generating a array of the
+    // filenames from this pattern
+    style: substrat.pattern(/(\.css|\.less)$/).last(/\.less$/),
 
-        // A matcher for everything else
-        all: substrat.pattern('*')
+    // A matcher for everything else
+    all: substrat.pattern('*')
 
-    };
+};
 
-    // Environment configuration
-    var env = {
-        title: 'Substrat',
-        version: 0.1,
-        patterns: patterns
-    };
+// Environment configuration
+var env = {
+    title: 'Substrat',
+    version: 0.1,
+    patterns: patterns
+};
 
-    // Create a new substrat instance
-    var s = substrat.init({
+// Create a new substrat instance
+var s = substrat.init({
 
-        // The source directory to watch
-        src: 'src',
+    // The source directory to watch
+    src: 'src',
 
-        // The destination directory for the build
-        dest: 'public',
+    // The destination directory for the build
+    dest: 'public',
 
-        // Whether or not to log build events
-        silent: false,
-        
-        // If true, will produce lots of internal logging output
-        debug: false,
+    // Whether or not to log build events
+    silent: false,
+    
+    // If true, will produce lots of internal logging output
+    debug: false,
 
-        // Enable compression in tasks (e.g. strip whitespace, minify js etc.)
-        compress: false,
+    // Enable compression in tasks (e.g. strip whitespace, minify js etc.)
+    compress: false,
 
-        // Set up dependencies
-        depends: [
-            // Rebuild src/index.jade every time a js or less file changes
-            // This way, the template can automatically update the included
-            // scripts and styles
-            ['index.jade', [patterns.js, patterns.style]]
-        ],
-        
-        // Define the tasks
-        // Tasks are run in order, each task will filter out the files it matched
-        // so they are not subject to any further tasks in the chain
-        tasks: [
-        
-            // Compile all app specific scripts with uglify-js
-            substrat.task.compile(patterns.js.app, 'js'),
+    // Set up dependencies
+    depends: [
+        // Rebuild src/index.jade every time a js or less file changes
+        // This way, the template can automatically update the included
+        // scripts and styles
+        ['index.jade', [patterns.js, patterns.style]]
+    ],
+    
+    // Define the tasks
+    // Tasks are run in order, each task will filter out the files it matched
+    // so they are not subject to any further tasks in the chain
+    tasks: [
+    
+        // Compile all app specific scripts with uglify-js
+        substrat.task.compile(patterns.js.app, 'js'),
 
-            // Compile all jade files to html and supply them with the locals from "env"
-            substrat.task.compile(patterns.compile.jade, 'jade', env),
+        // Compile all jade files to html and supply them with the locals from "env"
+        substrat.task.compile(patterns.compile.jade, 'jade', env),
 
-            // Compile all less stylesheets to css
-            substrat.task.compile(patterns.compile.less, 'less'),
+        // Compile all less stylesheets to css
+        substrat.task.compile(patterns.compile.less, 'less'),
 
-            // Copy all other files which did not match any previous tasks
-            substrat.task.copy(patterns.all)
-        
-        ]
-        
-    });
+        // Copy all other files which did not match any previous tasks
+        substrat.task.copy(patterns.all)
+    
+    ]
+    
+});
 
-    // Invoke the build
-    s.run();
+// Invoke the build
+s.run();
 ```
 
 ## Configuration Options
@@ -329,7 +329,7 @@ A task handler description consists of a number of properties and methods:
                     substrat: e.substrat
                 });
 
-                done(null, e.name, jade.render(e.data.toString(), locals));
+                done(null, jade.render(e.data.toString(), locals));
 
             } catch(err) {
                 done(err);
@@ -450,6 +450,12 @@ description and has the following structure:
     above.
 
     *Only for tasks running with mode `Task.All`*
+
+
+## Outstanding Features / Fixes
+
+- Correctly write out source maps for JS and CSS files
+- Implement a generic template task
 
 
 ## License
