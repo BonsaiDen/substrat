@@ -10,7 +10,6 @@
     "javascript",
     "static"
   ],
-
   "homepage": "",
   "author": "Ivo Wetzel <ivo.wetzel@googlemail.com> (https://github.com/BonsaiDen)",
   "repository": {
@@ -20,19 +19,17 @@
   "bugs": {
     "url": "https://github.com/BonsaiDen/substrat/issues"
   },
-
   "dependencies": {
     "chokidar": "0.6.3",
     "colors": "0.6.2",
     "fs.extra": "1.2.1",
-    "send": "0.1.4"
+    "send": "0.1.4",
+    "less": "1.5.0-b3",
+    "uglify-js": "~2.4.0"
   },
-
   "engines": {
     "node": ">=0.8",
     "npm": ">= 1"
   },
   "license": "MIT"
-
 }
-

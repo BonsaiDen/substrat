@@ -36,8 +36,11 @@ var types = {
                     outSourceMap: path.basename(e.path)
                 });
 
+                // TODO copy source files so they can be found by the dev tools
                 done(null, [
-                    m.code + '\n//@sourceMappingURL=' + e.mapped[1],
+                    m.code + '\n//@ sourceMappingURL=' + path.basename(e.mapped[1])
+                           + '\n//# sourceMappingURL=' + path.basename(e.mapped[1]),
+
                     m.map.toString()
                 ]);
 
@@ -65,15 +68,12 @@ var types = {
                 filename: e.source
             });
 
+            // TODO support source maps
             parser.parse(e.data.toString(), function(err, tree) {
-                if (err) {
-                    done(err);
-
-                } else {
-                    done(null, tree.toCSS({
-                        compress: e.options.compress
-                    }));
-                }
+                done(err, err || tree.toCSS({
+                    sourceMap: true,
+                    compress: e.options.compress
+                }));
             });
 
         }

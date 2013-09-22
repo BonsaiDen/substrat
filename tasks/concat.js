@@ -2,8 +2,7 @@
 var less = require('less'),
     uglifyjs = require('uglify-js'),
     path = require('path'),
-    Task = require('../lib/task/Task'),
-    util = require('../lib/util');
+    Task = require('../lib/task/Task');
 
 
 // Built-in concators ---------------------------------------------------------
@@ -20,7 +19,7 @@ var types = {
         map: function(e, file) {
 
             if (e.options.compress) {
-                return [e.config.file, e.config.file + '.map'];
+                return [file, file + '.map'];
 
             } else {
                 return file;
@@ -37,12 +36,14 @@ var types = {
                 });
 
                 var m = uglifyjs.minify(sources, {
-                    sourceRoot: path.dirname(e.options.dest),
                     outSourceMap: path.basename(e.path)
                 });
 
+                // TODO copy source files so they can be found by the dev tools
                 done(null, [
-                    m.code + '\n//@sourceMappingURL=' + e.mapped[1],
+                    m.code + '\n//@ sourceMappingURL=' + path.basename(e.mapped[1])
+                           + '\n//# sourceMappingURL=' + path.basename(e.mapped[1]),
+
                     m.map.toString()
                 ]);
 
@@ -71,30 +72,20 @@ var types = {
 
         run: function(e, done) {
 
-            var data = [];
-            util.async(e.all, function(file, next) {
+            var data = e.all.map(function(f) {
+                return f.data.toString();
+            });
 
-                var parser = new less.Parser({
-                    paths: [e.options.src],
-                    filename: file.source
-                });
+            var parser = new less.Parser({
+                paths: [e.options.src]
+            });
 
-                parser.parse(file.data.toString(), function(err, tree) {
-
-                    if (err) {
-                        done(err);
-
-                    } else {
-                        data.push(tree.toCSS({
-                            compress: e.options.compress
-                        }));
-                        next();
-                    }
-
-                });
-
-            }, function() {
-                done(null, data.join('\n\n'));
+            // TODO support source maps
+            parser.parse(data.join('\n\n'), function(err, tree) {
+                done(err, err || tree.toCSS({
+                    sourceMap: true,
+                    compress: e.options.compress
+                }));
             });
 
         }
