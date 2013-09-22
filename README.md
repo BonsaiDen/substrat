@@ -122,14 +122,14 @@ page applications in mind.
 
     A flag which indicates to tasks that the should compress / minify their output.
 
-    See the [Tasks](#Tasks) section for more details.
+    See the [Tasks](#tasks) section for more details.
 
 - `depends`: *Array[Array[Pattern, Pattern|Array[Patterns]]...]*
 
     A array containing arrays of patterns which specify which files should be 
     rebuild once other files matching the specified patterns have changed.
 
-    See the [Dependencies](#Dependencies) section for more details.
+    See the [Dependencies](#dependencies) section for more details.
 
 - `tasks`
 
@@ -137,7 +137,7 @@ page applications in mind.
     `src` directory change. Each successive tasks will filter out the files it 
     matched from the list of files that have changed.
 
-    See the [Tasks](#Tasks) section for more details.
+    See the [Tasks](#tasks) section for more details.
 
 
 ## Methods
