@@ -1,4 +1,4 @@
-# Substrat - Relax and build
+# Substrat - Relax your build
 
 **Substrat** is a simple, automatic build system for static HTML5 projects. 
 It's easy and quick to set up, configurable, extendable and built with single 
@@ -100,38 +100,38 @@ page applications in mind.
 
 ## Configuration Options
 
-- `src`: *String*
+- __`src`: *String*__
     
     The source directory which contains the file to build.
 
-- `dest`: *String*
+- __`dest`: *String*__
 
     The destination directory were the files produced by the build are to be found.
     The contents of the directory are automatically synced with the source, meaning 
     that files and folders which no longer exist in the source directory will automatically be removed.
 
-- `silent`: *Boolean*
+- __`silent`: *Boolean*__
 
     If `true` disables substrat logging.
 
-- `debug`: *Boolean*
+- __`debug`: *Boolean*__
 
     If `true` enables internal logging of substrat's components.
 
-- `compress`: *Boolean*
+- __`compress`: *Boolean*__
 
     A flag which indicates to tasks that the should compress / minify their output.
 
     See the [Tasks](#tasks) section for more details.
 
-- `depends`: *Array[Array[Pattern, Pattern|Array[Patterns]]...]*
+- __`depends`: *Array[Array[Pattern, Pattern|Array[Patterns]]...]*__
 
     A array containing arrays of patterns which specify which files should be 
     rebuild once other files matching the specified patterns have changed.
 
     See the [Dependencies](#dependencies) section for more details.
 
-- `tasks`
+- __`tasks`: *Array*__
 
     A listing of tasks which will be executed in order once the contents of the 
     `src` directory change. Each successive tasks will filter out the files it 
@@ -142,14 +142,14 @@ page applications in mind.
 
 ## Methods
 
-- `run()`
+- __`run()`__
 
     Invokes the build once and then finishes.
 
     Will emit the `done` event once the build has finished.
 
 
-- `watch()`
+- __`watch()`__
 
     Will continously monitor the source directory for changed and re-build 
     automatically.
@@ -157,7 +157,7 @@ page applications in mind.
     Triggers a `build` event after each completed build.
 
 
-- `listen(indexUrl, port [, host])`
+- __`listen(indexUrl, port [, host])`__
 
     Same as `watch()` but will also start a local web server on the specified 
     `host` and `port` and will patch the specified `indexUrl` HTML file to automatically 
@@ -166,19 +166,19 @@ page applications in mind.
     To disable automatic reloading, simply pass `null` as the value of `indexUrl`.
 
 
-- `stop()`
+- __`stop()`__
     
     Stops substrat in case it is watching or listening.
 
     Triggers the `stop` event.
 
 
-- `pattern(expr)`
+- __`pattern(expr)`__
     
-    Creates a new substart pattern from the given expression.
+    Creates a new substrat pattern from the given expression.
 
 
-- `files(pattern)`
+- __`files(pattern)` -> *Array[String]*__
 
     Returns a list of files for the **destination** directory which match the 
     specified pattern(s).
@@ -224,12 +224,8 @@ individual sub patterns.
 
 ### Ordering
 
-By default, the list of files return by a pattern when it matches is sorted by 
-length. This can be changed by calling `pattern.sort(comparator)` and supplying a custom 
-sorting function which will be run every time the pattern matches.
-
-There are also the very useful `pattern.first(patterns...)` and 
-`pattern.last(patterns...)` functions which will move the files matching the 
+Patterns have the very useful `pattern.first(patterns...)` and 
+`pattern.last(patterns...)` methods which will move the files matching the 
 specified patterns either to the beginning or the end of the file list. 
 
     substrat.pattern(/js\/.*\.js$/).first('js/config.js').last('js/init.js', 'js/afterInit.js');
@@ -238,10 +234,9 @@ For example, this allows you to get a list of all JavaScript files in your appli
 and then put the file that defines your namespaces and configuration and the beginning
 of the list and the file initializing your code at the very end.
     
+### Exclusion
 
-## Tasks
-
-Documentation coming soon.
+In addition patterns can include one or more files via the `pattern.not(pattern...)` method.
 
 
 ## Dependencies
@@ -269,6 +264,192 @@ complex pattern as the first entry of the array:
 
 > Note: Every rebuild will trigger another check for dependencies. 
 > This allows for the creation of dependencies that depend on other dependencies.
+
+
+## Tasks
+
+Tasks in substrat are highly configurable and can easily be extended.
+
+
+### Built-in Tasks
+
+Documentation coming soon.
+
+
+### Custom Tasks
+
+New tasks can be created via the `substrat.Task` constructor:
+
+    new substrat.Task(taskName, filePattern, handler, config)
+
+- __`taskName`: *String*__
+    
+    This simply is a internal name for the task which is used in debug logging.
+
+- __`filePattern`: *Pattern*__
+
+    A substrat pattern which describes all files for which the task should be executed.
+
+    > Note: A `null` pattern will run the task on every build, not matter which files have changed.
+
+- __`handlerDescription`: *Object*__
+
+    A object which implements the actual logic of the task.
+
+- __`config`: *Object*__
+
+    Additional configuration which is available to the task logic during execution.
+
+
+### Task Handler Description
+
+A task handler description consists of a number of properties and methods:
+    
+    var handlerDescription = {
+
+        // Run the task independently for each file
+        mode: substrat.Task.Each,
+
+        // Automatically provide the file data to the task
+        data: true,
+
+        // Map the source files to html files in the output
+        map: function(e, file) {
+            return file.replace(/\.jade$/, '.html');
+        },
+
+        // The actual task logic
+        run: function(e, done) {
+
+            try {
+
+                // Use the custom configuration of the task as the locals
+                var locals = util.merge(e.config, {
+                    pretty: !e.options.compress,
+                    substrat: e.substrat
+                });
+
+                done(null, e.name, jade.render(e.data.toString(), locals));
+
+            } catch(err) {
+                done(err);
+            }
+
+        }
+
+    };
+
+
+- __`mode`: *Integer*__
+
+    One of the following:
+
+    - __`Each`__
+
+        Run the task independently for each file, meaning that for five input files
+        the task will be run five times.
+
+    - __`All`__
+
+        Run the task once on all files, meaning that for five input files
+        the task will be called exactly one time and will be provided with all 
+        the files and their data at once.
+
+    - __`Single`__
+
+        Run the task once and don't care about the input. Useful for auto 
+        generation of files and other things.
+
+
+- __`data`: *Boolean|Function(e)*__
+
+    Whether or not to automatically read the input file(s) and supply their 
+    buffers to the task. Can also be a function which gets passed the [task 
+    execution environment](#task-execution-environment) and should return a `boolean`.
+
+
+- __`map`: *Function(e, file)*__
+
+    A function which maps the input filename to the respective outputs, can 
+    also return an array with multiple output names (e.g. a JS file and its 
+    corresponding source map file).
+
+    It's arguments consists of the [task execution environment](#task-execution-environment) 
+    and the path of the file in source directory.
+
+    These mappings are used to create the output files of the task in the 
+    destination directory.
+    
+    In addition, they also server to synchronize the destination directory and 
+    automatically remove files which are no longer exist in the source.
+
+    They are also available via `substrat.files(patterns)` and can be used to
+    automatically include files in HTML and other templates.
+
+
+- __`run`: *Function(e, done(err, data))*__
+
+    A function which performs the actual task logic.
+
+    It's arguments consists of the [task execution environment](#task-execution-environment) 
+    and a callback function.
+
+    The `done` callback takes the following arguments:
+
+    - __`err`: *Null|Error*__
+
+        The error value in case the task could failed. Pass `null` if the task
+        was successful.A
+
+    - __`data`: *String|Array[String]*__
+
+        The file data to be written into the files indicated by the return value(s)
+        of the handlers `map()` function.
+
+
+### Task Execution Environment
+
+This "environment" argument is passed to all functions of a task handler 
+description and has the following structure:
+
+- __`options`: *Object*__
+
+    A reference to the configuration object passed into `substrat.init()`.
+
+- __`config`: *Object*__
+    
+    A reference to the configuration object passed into the task constructor.
+
+- __`mapped`: *String|Array[String]*__
+
+    The filename(s) returned by the `map()` function of the task handler.
+
+    *Only for tasks running with mode `Task.Each` or `Task.All`*
+
+- __`source`: *String*__
+    
+    The filename from the source directory.
+
+    *Only for tasks running with mode `Task.Each`*
+
+- __`data`: *Buffer*__
+
+    A `Buffer` object with the contents of the file reference by `source`.
+
+    *Only for tasks running with mode `Task.Each`*
+
+- __`path`: *String*__
+
+    The full path to the file in the source directory.
+
+    *Only for tasks running with mode `Task.Each`*
+
+- __`all`: *Array[Object]*__
+    
+    A array of objects with `source`, `data` and `path` properties as described 
+    above.
+
+    *Only for tasks running with mode `Task.All`*
 
 
 ## License
