@@ -1,5 +1,5 @@
 {
-  "version": "0.1.0",
+  "version": "0.2.0",
   "name": "substrat",
   "description": "Simple, automatic build system for single page web applications. ",
   "keywords": [
@@ -25,7 +25,7 @@
     "chokidar": "0.6.3",
     "colors": "0.6.2",
     "fs.extra": "1.2.1",
-    "node-static": "0.7.1"
+    "send": "0.1.4"
   },
 
   "engines": {
