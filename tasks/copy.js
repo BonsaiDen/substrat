@@ -19,7 +19,6 @@ var copy = {
         var dest = path.join(e.options.dest, e.mapped);
         fs.mkdirp(path.dirname(dest), function() {
 
-            // TODO prevent multiple calls to done
             var reader = fs.createReadStream(e.path);
             reader.on('error', function(err) {
                 done(err);
@@ -30,7 +29,7 @@ var copy = {
                 done(err);
             });
 
-            writer.on('close', function() {
+            writer.on('close', function(err) {
                 done(null);
             });
 

@@ -456,6 +456,13 @@ description and has the following structure:
 
 - Correctly write out source maps for JS and CSS files
 - Implement a generic template task
+- Display "Listening on port xxxx" after the first completed build so it is visible to the end user
+- return "this" from run(), watch() and build()
+- Add a grunt task
+- save and restore scroll position when reloading the page
+- make '\*' pattern ignore hidden (dot) files by default
+
+    - TODO make watcher ignore these files by default instead?
 
 
 ## License
