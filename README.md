@@ -5,6 +5,16 @@ It's easy and quick to set up, configurable, extendable and built with single
 page applications in mind.
 
 
+## Features
+
+- Automatic monitoring and syncing our source and build directories
+- Task Dependencies to re-build files when other files are changed
+- Pre-defined tasks for things like [uglify], [less] and [jade]
+- Easy to extend with custom tasks
+- Highly dynamic support for file patterns and file ordering
+- Built in static web server with support for automatic page reload on each build
+
+
 ## Example Usage
 
 1. Get it via `npm install substrat`
@@ -107,20 +117,27 @@ s.run();
 - __`dest`: *String*__
 
     The destination directory were the files produced by the build are to be found.
-    The contents of the directory are automatically synced with the source, meaning 
-    that files and folders which no longer exist in the source directory will automatically be removed.
 
-- __`silent`: *Boolean*__
+    The contents of the directory are automatically synced with the source, 
+    meaning that files and folders which no longer exist in the source directory 
+    will automatically be removed.
+
+- __`silent`: *Boolean*__ ( *false* )
 
     If `true` disables substrat logging.
 
-- __`debug`: *Boolean*__
+- __`debug`: *Boolean*__ ( *false* )
 
     If `true` enables internal logging of substrat's components.
 
-- __`compress`: *Boolean*__
+- __`hidden`: *Boolean*__ ( *true* )
 
-    A flag which indicates to tasks that the should compress / minify their output.
+    When `true` substrat will ingore any dotfiles.
+
+- __`compress`: *Boolean*__ ( *false* )
+
+    A flag which indicates to tasks that the should compress / minify their 
+    output.
 
     See the [Tasks](#tasks) section for more details.
 
@@ -142,14 +159,14 @@ s.run();
 
 ## Methods
 
-- __`run()`__
+- __`run()`: *this*__ 
 
     Invokes the build once and then finishes.
 
     Will emit the `done` event once the build has finished.
 
 
-- __`watch()`__
+- __`watch()`: *this*__ 
 
     Will continously monitor the source directory for changed and re-build 
     automatically.
@@ -157,23 +174,23 @@ s.run();
     Triggers a `build` event after each completed build.
 
 
-- __`listen(indexUrl, port [, host])`__
+- __`listen(indexUrl, port [, host])`: *this*__
 
     Same as `watch()` but will also start a local web server on the specified 
-    `host` and `port` and will patch the specified `indexUrl` HTML file to automatically 
-    reload on every build.
+    `host` and `port` and will patch the specified `indexUrl` HTML file to 
+    automatically  reload on every build.
 
     To disable automatic reloading, simply pass `null` as the value of `indexUrl`.
 
 
-- __`stop()`__
+- __`stop()`: *this*__
     
     Stops substrat in case it is watching or listening.
 
     Triggers the `stop` event.
 
 
-- __`pattern(expr)`__
+- __`pattern(expr)`: *Pattern*__
     
     Creates a new substrat pattern from the given expression.
 
@@ -193,15 +210,18 @@ expressions internally. You can also create pass objects of patterns which will
 be merged, as well as arrays which will concatenate their matches.
 
 > Note: All paths and files within substrat are treated relative to either the 
-`src` or `dest` directories. E.g. `/home/user/project/src/js/app.js` will be treated as `js/app.js`.
+`src` or `dest` directories. E.g. `/home/user/project/src/js/app.js` will be 
+treated as `js/app.js`.
 
 
 ### From Strings
 
-All strings that are passed as patterns will have their regex characters escaped 
-and are then converted into a regular expression for absolute matching (i.e. `/^escapedString$/`).
+All strings parsed via [minimatch](https://github.com/isaacs/minimatch) and 
+converted into regular expressions. This means that you can use standard *glob* 
+patterns like `**/*.js` and the like.
 
-The only exception to this rule is the special string `*` which will get converted to `/^.*$/`.
+The only exception to this rule is the special string `*` which will get 
+converted to `/^.*$/`.
 
 
 ### From Regular Expressions
@@ -212,7 +232,8 @@ You can pass any valid regular expression as a pattern.
 ### From Objects
 
 Patterns from objects are merged, they object's keys are sorted via the standard 
-`sort()` function and are then used to merge the object's values into a new pattern.
+`sort()` function and are then used to merge the object's values into a new 
+pattern.
 
 
 ### From Arrays
@@ -230,13 +251,15 @@ specified patterns either to the beginning or the end of the file list.
 
     substrat.pattern(/js\/.*\.js$/).first('js/config.js').last('js/init.js', 'js/afterInit.js');
 
-For example, this allows you to get a list of all JavaScript files in your application 
-and then put the file that defines your namespaces and configuration and the beginning
+For example, this allows you to get a list of all JavaScript files in your 
+application and then put the file that defines your namespaces and configuration 
+and the beginning
 of the list and the file initializing your code at the very end.
     
 ### Exclusion
 
-In addition patterns can include one or more files via the `pattern.not(pattern...)` method.
+In addition patterns can include one or more files via the 
+`pattern.not(pattern...)` method.
 
 
 ## Dependencies
@@ -288,9 +311,11 @@ New tasks can be created via the `substrat.Task` constructor:
 
 - __`filePattern`: *Pattern*__
 
-    A substrat pattern which describes all files for which the task should be executed.
+    A substrat pattern which describes all files for which the task should be 
+    executed.
 
-    > Note: A `null` pattern will run the task on every build, not matter which files have changed.
+    > Note: A `null` pattern will run the task on every build, not matter which 
+    > files have changed.
 
 - __`handlerDescription`: *Object*__
 
@@ -298,7 +323,8 @@ New tasks can be created via the `substrat.Task` constructor:
 
 - __`config`: *Object*__
 
-    Additional configuration which is available to the task logic during execution.
+    Additional configuration which is available to the task logic during 
+    execution.
 
 
 ### Task Handler Description
@@ -346,8 +372,8 @@ A task handler description consists of a number of properties and methods:
 
     - __`Each`__
 
-        Run the task independently for each file, meaning that for five input files
-        the task will be run five times.
+        Run the task independently for each file, meaning that for five input 
+        files the task will be run five times.
 
     - __`All`__
 
@@ -365,7 +391,8 @@ A task handler description consists of a number of properties and methods:
 
     Whether or not to automatically read the input file(s) and supply their 
     buffers to the task. Can also be a function which gets passed the [task 
-    execution environment](#task-execution-environment) and should return a `boolean`.
+    execution environment](#task-execution-environment) and should return a 
+    `boolean`.
 
 
 - __`map`: *Function(e, file)*__
@@ -374,8 +401,9 @@ A task handler description consists of a number of properties and methods:
     also return an array with multiple output names (e.g. a JS file and its 
     corresponding source map file).
 
-    It's arguments consists of the [task execution environment](#task-execution-environment) 
-    and the path of the file in source directory.
+    It's arguments consists of the 
+    [task execution environment](#task-execution-environment) and the path of 
+    the file in source directory.
 
     These mappings are used to create the output files of the task in the 
     destination directory.
@@ -391,8 +419,9 @@ A task handler description consists of a number of properties and methods:
 
     A function which performs the actual task logic.
 
-    It's arguments consists of the [task execution environment](#task-execution-environment) 
-    and a callback function.
+    It's arguments consists of the 
+    [task execution environment](#task-execution-environment) and a callback 
+    function.
 
     The `done` callback takes the following arguments:
 
@@ -403,8 +432,8 @@ A task handler description consists of a number of properties and methods:
 
     - __`data`: *String|Array[String]*__
 
-        The file data to be written into the files indicated by the return value(s)
-        of the handlers `map()` function.
+        The file data to be written into the files indicated by the return 
+        value(s) of the handlers `map()` function.
 
 
 ### Task Execution Environment
@@ -454,15 +483,10 @@ description and has the following structure:
 
 ## Outstanding Features / Fixes
 
-- Correctly write out source maps for JS and CSS files
-- Implement a generic template task
-- Display "Listening on port xxxx" after the first completed build so it is visible to the end user
-- return "this" from run(), watch() and build()
 - Add a grunt task
-- save and restore scroll position when reloading the page
-- make '\*' pattern ignore hidden (dot) files by default
-
-    - TODO make watcher ignore these files by default instead?
+- Create a demo repository
+- Implement a generic template task
+- Correctly write out source maps for JS and CSS files
 
 
 ## License
