@@ -9,7 +9,7 @@ page applications in mind.
 
 - Automatic monitoring and syncing our source and build directories
 - Task Dependencies to re-build files when other files are changed
-- Pre-defined tasks for things like [uglify], [less] and [jade]
+- Pre-defined tasks for things like [uglify](https://github.com/mishoo/UglifyJS2), [less](http://lesscss.org/) and [jade](http://jade-lang.com/)
 - Easy to extend with custom tasks
 - Highly dynamic support for file patterns and file ordering
 - Built in static web server with support for automatic page reload on each build
