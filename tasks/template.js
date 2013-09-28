@@ -1,9 +1,10 @@
 // Dependencies ---------------------------------------------------------------
-var Task = require('../lib/task/Task');
+var Task = require('../lib/task/Task'),
+    mustache = require('mustache');
 
 
-// Generate Task --------------------------------------------------------------
-var generate = {
+// Template Task --------------------------------------------------------------
+var template = {
 
     mode: Task.Each,
     data: true,
@@ -13,7 +14,17 @@ var generate = {
     },
 
     run: function(e, done) {
-        done(new Error('Task not implemented.'));
+
+        var locals;
+        if (typeof e.config.data === 'function') {
+            locals = e.config.data(e);
+
+        } else {
+            locals = e.config.data;
+        }
+
+        done(null, mustache.render(e.data.toString(), locals));
+
     }
 
 };
@@ -22,9 +33,8 @@ var generate = {
 // Factory --------------------------------------------------------------------
 module.exports = {
 
-    task: function(file, data) {
-        return new Task('Generate: ' + file, null, generate, {
-            file: file,
+    task: function(pattern, data) {
+        return new Task('Template', pattern, template, {
             data: data
         });
     }

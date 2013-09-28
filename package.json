@@ -1,7 +1,7 @@
 {
   "version": "0.2.7",
   "name": "substrat",
-  "description": "Simple, automatic build system for single page web applications. ",
+  "description": "A powerful yet simple build system for HTML5 projects.",
   "keywords": [
     "build",
     "html5",
@@ -26,11 +26,15 @@
     "send": "0.1.4",
     "less": "1.5.0-b3",
     "uglify-js": "~2.4.0",
+    "mustache": "~0.7.2",
     "minimatch": "~0.2.12"
   },
   "engines": {
     "node": ">=0.8",
     "npm": ">= 1"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "nodeunit": "~0.8.1"
+  }
 }
