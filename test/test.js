@@ -102,6 +102,22 @@ exports.patterns = {
 
     },
 
+    fromFunction: function(test) {
+
+        function m(file) {
+            return file.indexOf('classes') !== -1;
+        }
+
+        test.deepEqual(substrat.pattern(m).matches(files), [
+            'js/classes/B.js',
+            'js/classes/C.js',
+            'js/classes/A.js'
+        ]);
+
+        test.done();
+
+    },
+
     fromObject: function(test) {
 
         var obj = {
