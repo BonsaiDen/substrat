@@ -1,5 +1,5 @@
 {
-  "version": "0.2.7",
+  "version": "0.2.8",
   "name": "substrat",
   "description": "A powerful yet simple build system for HTML5 projects.",
   "keywords": [
@@ -7,6 +7,8 @@
     "html5",
     "jade",
     "less",
+    "uglifyjs",
+    "mustache",
     "javascript",
     "static"
   ],

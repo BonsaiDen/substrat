@@ -1,120 +1,143 @@
 # Substrat - Relax your build
 
-**Substrat** is a simple, automatic build system for static HTML5 projects. 
-It's easy and quick to set up, configurable, extendable and built with single 
-page applications in mind.
+**Substrat** is a powerful yet simple build system for HTML5 projects. 
+
+It's easy and quick to set up, configurable, extendable and built with a focus on 
+single page static / applications in mind.
 
 
 ## Features
 
 - Automatic monitoring and syncing our source and build directories
-- Task Dependencies to re-build files when other files are changed
-- Pre-defined tasks for things like [uglify](https://github.com/mishoo/UglifyJS2), [less](http://lesscss.org/) and [jade](http://jade-lang.com/)
-- Easy to extend with custom tasks
-- Highly dynamic support for file patterns and file ordering
-- Built in static web server with support for automatic page reload on each build
+- Supports complex [file patterns](#patterns) for file filtering and ordering
+- Has task dependencies to re-build files when other files are changed (based on patterns)
+- Built in static web server with support for automatic page reload on each build 
+- Comes with many built-in tasks for things like:
+
+    - JS Minification  (using [UglifyJS](https://github.com/mishoo/UglifyJS2))
+    - Stylesheet compilation (using [lesscss](https://github.com/less/less.js))
+    - HTML Templating  (using [Jade](https://github.com/visionmedia/jade))
+    - Generating files from templates (using [mustache.js](https://github.com/janl/mustache.js))
+    - Dynamic file generation (using your custom functions)
+
+- Is easy to extend with your own, custom tasks
+- Completely generic, can be used with (e.g. [Grunt](http://gruntjs.com), [Jake](https://github.com/mde/jake) or any other task runner or in a standlone script
 
 
-## Example Usage
+## Usage
 
 1. Get it via `npm install substrat`
-2. Require and use it in your build script (e.g. [Grunt](http://gruntjs.com))
     
-```javascript
-var substrat = require('substrat');
+    ```javascript
+    var substrat = require('substrat');
+    ```
 
-// Setup the file patterns
-var patterns = {
+2. Setup your patterns, these allow you to group and filter the files for your build
 
-    js: {
-        // Match all source files of the application, and put app and config
-        // at the end when generating a array of the filenames from this pattern
-        app: substrat.pattern(/js\/.*\.js$/).last('js/config.js', 'js/app.js'),
+    ```javascript
+    var patterns = {
 
-        // Match all the javascript source files of the libraries, but ignore any pre-minified ones
-        lib: substrat.pattern(/lib\/.*\.js$/).not(/\.min\.js$/)
-    },
+        js: {
+            // Match all source files of the application, and put app and config
+            // at the end when generating a array of the filenames from this pattern
+            app: substrat.pattern(/js\/.*\.js$/).last('js/config.js', 'js/app.js'),
 
-    compile: {
-        jade: substrat.pattern(/\.jade$/),
-        less: substrat.pattern(/\.less$/)
-    },
+            // Match all the javascript source files of the libraries, but ignore any pre-minified ones
+            lib: substrat.pattern(/lib\/.*\.js$/).not(/\.min\.js$/)
+        },
 
-    // Match all style sheets both generated and existing ones
-    // but put the generated ones at the end when generating a array of the
-    // filenames from this pattern
-    style: substrat.pattern(/(\.css|\.less)$/).last(/\.less$/),
+        compile: {
+            jade: substrat.pattern(/\.jade$/),
+            less: substrat.pattern(/\.less$/)
+        },
 
-    // A matcher for everything else
-    all: substrat.pattern('*')
+        // Match all style sheets both generated and existing ones
+        // but put the generated ones at the end when generating a array of the
+        // filenames from this pattern
+        style: substrat.pattern(/(\.css|\.less)$/).last(/\.less$/),
 
-};
+        // A matcher for everything else
+        all: substrat.pattern('*')
 
-// Environment configuration
-var env = {
-    title: 'Substrat',
-    version: 0.1,
-    patterns: patterns
-};
+    };
+    ```
 
-// Create a new substrat instance
-var s = substrat.init({
+3. Define an environment for the use in your templates, you can also expose the patterns so you can include all your scripts and styles automatically
 
-    // The source directory to watch
-    src: 'src',
+    ```javascript
+    var env = {
+        title: 'Substrat',
+        version: 0.1,
+        patterns: patterns // Expose the patterns for later usage
+    };
+    ```
 
-    // The destination directory for the build
-    dest: 'public',
+4. Create a new instance of substrat with your specific configuration
 
-    // Whether or not to log build events
-    silent: false,
-    
-    // If true, will produce lots of internal logging output
-    debug: false,
+    ```javascript
+    var s = substrat.init({
 
-    // Enable compression in tasks (e.g. strip whitespace, minify js etc.)
-    compress: false,
+        // The source directory to watch
+        src: 'src',
 
-    // Set up dependencies
-    depends: [
-        // Rebuild src/index.jade every time a js or less file changes
-        // This way, the template can automatically update the included
-        // scripts and styles
-        ['index.jade', [patterns.js, patterns.style]]
-    ],
-    
-    // Define the tasks
-    // Tasks are run in order, each task will filter out the files it matched
-    // so they are not subject to any further tasks in the chain
-    tasks: [
-    
-        // Compile all app specific scripts with uglify-js
-        substrat.task.compile(patterns.js.app, 'js'),
+        // The destination directory for the build
+        dest: 'public',
 
-        // Compile all jade files to html and supply them with the locals from "env"
-        substrat.task.compile(patterns.compile.jade, 'jade', env),
+        // Whether or not to log build events
+        silent: false,
+        
+        // If true, will produce lots of internal logging output
+        debug: false,
 
-        // Compile all less stylesheets to css
-        substrat.task.compile(patterns.compile.less, 'less'),
+        // Enable compression in tasks (e.g. strip whitespace, minify js etc.)
+        compress: false,
 
-        // Copy all other files which did not match any previous tasks
-        substrat.task.copy(patterns.all)
-    
-    ]
-    
-});
+        // Set up dependencies
+        depends: [
+            // Rebuild src/index.jade every time a js or less file changes
+            // This way, the template can automatically update the included
+            // scripts and styles
+            ['index.jade', [patterns.js, patterns.style]]
+        ],
+        
+        // Define the tasks
+        // Tasks are run in order, each task will filter out the files it matched
+        // so they are not subject to any further tasks in the chain
+        tasks: [
+        
+            // Compile all app specific scripts with uglify-js
+            substrat.task.compile(patterns.js.app, 'js'),
 
-// Invoke the build
-s.run();
-```
+            // Compile all jade files to html and supply them with the locals from "env"
+            substrat.task.compile(patterns.compile.jade, 'jade', env),
+
+            // Compile all less stylesheets to css
+            substrat.task.compile(patterns.compile.less, 'less'),
+
+            // Copy all other files which did not match any previous tasks
+            substrat.task.copy(patterns.all)
+        
+        ]
+        
+    });
+    ```
+
+5. Start your continous build that automatically reloads your browser while you're editing
+
+    ```javascript
+    s.listen(4444);
+    ```
+
+Read on for more details on the configuration options and tasks.
+
 
 ## Configuration Options
 
-- __`src`: *String*__
+- `src`: *String*
     
     The source directory which contains the file to build.
 
-- __`dest`: *String*__
+- `dest`: *String*
 
     The destination directory were the files produced by the build are to be found.
 
@@ -122,33 +145,33 @@ s.run();
     meaning that files and folders which no longer exist in the source directory 
     will automatically be removed.
 
-- __`silent`: *Boolean*__ ( *false* )
+- `silent`: *Boolean (false)*
 
     If `true` disables substrat logging.
 
-- __`debug`: *Boolean*__ ( *false* )
+- `debug`: *Boolean (false)*
 
     If `true` enables internal logging of substrat's components.
 
-- __`hidden`: *Boolean*__ ( *true* )
+- `hidden`: *Boolean (true)*
 
     When `true` substrat will ingore any dotfiles.
 
-- __`compress`: *Boolean*__ ( *false* )
+- `compress`: *Boolean(false)*
 
     A flag which indicates to tasks that the should compress / minify their 
     output.
 
     See the [Tasks](#tasks) section for more details.
 
-- __`depends`: *Array[Array[Pattern, Pattern|Array[Patterns]]...]*__
+- `depends`: *Array[Array[Pattern, Pattern|Array[Patterns]]...]*
 
     A array containing arrays of patterns which specify which files should be 
     rebuild once other files matching the specified patterns have changed.
 
     See the [Dependencies](#dependencies) section for more details.
 
-- __`tasks`: *Array*__
+- `tasks`: *Array*
 
     A listing of tasks which will be executed in order once the contents of the 
     `src` directory change. Each successive tasks will filter out the files it 
@@ -159,14 +182,14 @@ s.run();
 
 ## Methods
 
-- __`run()`: *this*__ 
+- `run()` -> *this*
 
     Invokes the build once and then finishes.
 
     Will emit the `done` event once the build has finished.
 
 
-- __`watch()`: *this*__ 
+- `watch()` -> *this*
 
     Will continously monitor the source directory for changed and re-build 
     automatically.
@@ -174,7 +197,7 @@ s.run();
     Triggers a `build` event after each completed build.
 
 
-- __`listen(indexUrl, port [, host])`: *this*__
+- `listen(indexUrl, port [, host])` -> *this*
 
     Same as `watch()` but will also start a local web server on the specified 
     `host` and `port` and will patch the specified `indexUrl` HTML file to 
@@ -183,19 +206,19 @@ s.run();
     To disable automatic reloading, simply pass `null` as the value of `indexUrl`.
 
 
-- __`stop()`: *this*__
+- `stop()` -> *this*
     
     Stops substrat in case it is watching or listening.
 
     Triggers the `stop` event.
 
 
-- __`pattern(expr)`: *Pattern*__
+- `pattern(expr)` -> *Pattern*
     
     Creates a new substrat pattern from the given expression.
 
 
-- __`files(pattern)` -> *Array[String]*__
+- `files(pattern)` -> *Array[String]*
 
     Returns a list of files for the **destination** directory which match the 
     specified pattern(s).
@@ -236,6 +259,12 @@ Patterns from objects are merged, they object's keys are sorted via the standard
 pattern.
 
 
+### From Functions
+
+Functions which are passed as pattern will get invoked with the filename they
+should test for matching. They should return either `true` or `false`.
+
+
 ### From Arrays
 
 Arrays will create so called *Pattern Groups*. Pattern groups apply all included 
@@ -249,7 +278,9 @@ Patterns have the very useful `pattern.first(patterns...)` and
 `pattern.last(patterns...)` methods which will move the files matching the 
 specified patterns either to the beginning or the end of the file list. 
 
-    substrat.pattern(/js\/.*\.js$/).first('js/config.js').last('js/init.js', 'js/afterInit.js');
+```javascript
+substrat.pattern(/js\/.*\.js$/).first('js/config.js').last('js/init.js', 'js/afterInit.js');
+```
 
 For example, this allows you to get a list of all JavaScript files in your 
 application and then put the file that defines your namespaces and configuration 
@@ -272,7 +303,7 @@ one is a pattern which describes which files will be re-build and the second
 entry being a pattern which specifies which files will trigger the re-build.
 
 ```javascript
-    ['index.jade', [/*.js$/, /*.less$/]]
+['index.jade', [/*.js$/, /*.less$/]]
 ```
 
 The above will rebuild `index.jade` every time that a `.js` or `.less` file has 
@@ -282,7 +313,7 @@ Of course it is also possibly to re-build multiple files, simply supply a more
 complex pattern as the first entry of the array:
 
 ```javascript
-    [/template\/view\/controller\/*.jade$/, [/*.js$/, /*.less$/]]
+[/template\/view\/controller\/*.jade$/, [/*.js$/, /*.less$/]]
 ```
 
 > Note: Every rebuild will trigger another check for dependencies. 
@@ -291,10 +322,20 @@ complex pattern as the first entry of the array:
 
 ## Tasks
 
-Tasks in substrat are highly configurable and can easily be extended.
+Tasks in substrat are highly configurable and easy to extend.
 
 
 ### Built-in Tasks
+
+- __Compile__
+
+- __Concat__
+
+- __Copy__
+
+- __Generate__
+
+- __Template__
 
 Documentation coming soon.
 
@@ -305,11 +346,11 @@ New tasks can be created via the `substrat.Task` constructor:
 
     new substrat.Task(taskName, filePattern, handler, config)
 
-- __`taskName`: *String*__
+- `taskName`: *String*
     
     This simply is a internal name for the task which is used in debug logging.
 
-- __`filePattern`: *Pattern*__
+- `filePattern`: *Pattern*
 
     A substrat pattern which describes all files for which the task should be 
     executed.
@@ -317,11 +358,11 @@ New tasks can be created via the `substrat.Task` constructor:
     > Note: A `null` pattern will run the task on every build, not matter which 
     > files have changed.
 
-- __`handlerDescription`: *Object*__
+- `handlerDescription`: *Object*
 
     A object which implements the actual logic of the task.
 
-- __`config`: *Object*__
+- `config`: *Object*
 
     Additional configuration which is available to the task logic during 
     execution.
@@ -366,28 +407,28 @@ A task handler description consists of a number of properties and methods:
     };
 
 
-- __`mode`: *Integer*__
+- `mode`: *Integer*
 
     One of the following:
 
-    - __`Each`__
+    - `Each`
 
         Run the task independently for each file, meaning that for five input 
         files the task will be run five times.
 
-    - __`All`__
+    - `All`
 
         Run the task once on all files, meaning that for five input files
         the task will be called exactly one time and will be provided with all 
         the files and their data at once.
 
-    - __`Single`__
+    - `Single`
 
         Run the task once and don't care about the input. Useful for auto 
         generation of files and other things.
 
 
-- __`data`: *Boolean|Function(e)*__
+- `data`: *Boolean|Function(e)*
 
     Whether or not to automatically read the input file(s) and supply their 
     buffers to the task. Can also be a function which gets passed the [task 
@@ -395,7 +436,7 @@ A task handler description consists of a number of properties and methods:
     `boolean`.
 
 
-- __`map`: *Function(e, file)*__
+- `map`: *Function(e, file)*
 
     A function which maps the input filename to the respective outputs, can 
     also return an array with multiple output names (e.g. a JS file and its 
@@ -415,7 +456,7 @@ A task handler description consists of a number of properties and methods:
     automatically include files in HTML and other templates.
 
 
-- __`run`: *Function(e, done(err, data))*__
+- `run`: *Function(e, done(err[, data]))*
 
     A function which performs the actual task logic.
 
@@ -425,15 +466,18 @@ A task handler description consists of a number of properties and methods:
 
     The `done` callback takes the following arguments:
 
-    - __`err`: *Null|Error*__
+    - `err`: *Null|Error*
 
         The error value in case the task could failed. Pass `null` if the task
         was successful.A
 
-    - __`data`: *String|Array[String]*__
+    - `data`: *String|Array[String]* (Optional)
 
         The file data to be written into the files indicated by the return 
         value(s) of the handlers `map()` function.
+
+        If left out, no file be written. This can be used by tasks which handle
+        the writing on their own (e.g. the `copy` task which uses streams).
 
 
 ### Task Execution Environment
@@ -441,39 +485,39 @@ A task handler description consists of a number of properties and methods:
 This "environment" argument is passed to all functions of a task handler 
 description and has the following structure:
 
-- __`options`: *Object*__
+- `options`: *Object*
 
     A reference to the configuration object passed into `substrat.init()`.
 
-- __`config`: *Object*__
+- `config`: *Object*
     
     A reference to the configuration object passed into the task constructor.
 
-- __`mapped`: *String|Array[String]*__
+- `mapped`: *String|Array[String]*
 
     The filename(s) returned by the `map()` function of the task handler.
 
     *Only for tasks running with mode `Task.Each` or `Task.All`*
 
-- __`source`: *String*__
+- `source`: *String*
     
     The filename from the source directory.
 
     *Only for tasks running with mode `Task.Each`*
 
-- __`data`: *Buffer*__
+- `data`: *Buffer*
 
     A `Buffer` object with the contents of the file reference by `source`.
 
     *Only for tasks running with mode `Task.Each`*
 
-- __`path`: *String*__
+- `path`: *String*
 
     The full path to the file in the source directory.
 
     *Only for tasks running with mode `Task.Each`*
 
-- __`all`: *Array[Object]*__
+- `all`: *Array[Object]*
     
     A array of objects with `source`, `data` and `path` properties as described 
     above.
@@ -484,8 +528,8 @@ description and has the following structure:
 ## Outstanding Features / Fixes
 
 - Add a grunt task
-- Create a demo repository
-- Implement a generic template task
+- Create a repository with a demo/example project
+- Add Support for a `Subfile.js`
 - Correctly write out source maps for JS and CSS files
 
 
