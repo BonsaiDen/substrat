@@ -207,6 +207,74 @@ exports.patterns = {
 
         test.done();
 
+    },
+
+    all: function(test) {
+
+        test.deepEqual(substrat.pattern('*').matches(files), [
+            'style/main.less',
+            'index.jade',
+            'js/classes/B.js',
+            'partials/form.jade',
+            'lib/bootstrap/bootstrap.css',
+            'js/classes/C.js',
+            'lib/bootstrap/bootstrap.js',
+            'js/classes/A.js',
+            'lib/bootstrap/bootstrap.min.js',
+            'js/app.js',
+            'js/util.js',
+            'style/fix.less',
+            'js/config.js',
+            'style/view.less'
+        ]);
+
+        test.done();
+
+    },
+
+    multiMatch: function(test) {
+
+        var p = substrat.pattern(/js\/[^\/]*\.js$/, /js\/.*\.js$/);
+        test.deepEqual(p.matches(files), [
+            'js/classes/B.js',
+            'js/classes/C.js',
+            'js/classes/A.js',
+            'js/app.js',
+            'js/util.js',
+            'js/config.js'
+        ]);
+
+        p = substrat.pattern('js/**/*.js', 'js/*.js');
+        test.deepEqual(p.matches(files), [
+            'js/classes/B.js',
+            'js/classes/C.js',
+            'js/classes/A.js',
+            'js/app.js',
+            'js/util.js',
+            'js/config.js'
+        ]);
+
+        test.done();
+
+    },
+
+    combination: function(test) {
+
+        var p = substrat.pattern(/js\/.*\.js$/).
+                first('js/config.js').
+                last('js/classes/**/*.js', 'js/util.js', 'js/app.js');
+
+        test.deepEqual(p.matches(files), [
+            'js/config.js',
+            'js/classes/B.js',
+            'js/classes/C.js',
+            'js/classes/A.js',
+            'js/util.js',
+            'js/app.js'
+        ]);
+
+        test.done();
+
     }
 
 };
