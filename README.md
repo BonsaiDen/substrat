@@ -14,14 +14,14 @@ single page static / applications in mind.
 - Built in static web server with support for automatic page reload on each build 
 - Comes with many built-in tasks for things like:
 
-    - JS Minification  (using [UglifyJS](https://github.com/mishoo/UglifyJS2))
+    - JS Minification (using [UglifyJS](https://github.com/mishoo/UglifyJS2))
     - Stylesheet compilation (using [lesscss](https://github.com/less/less.js))
-    - HTML Templating  (using [Jade](https://github.com/visionmedia/jade))
+    - HTML Templating (using [Jade](https://github.com/visionmedia/jade))
     - Generating files from templates (using [mustache.js](https://github.com/janl/mustache.js))
     - Dynamic file generation (using your custom functions)
 
 - Is easy to extend with your own, custom tasks
-- Completely generic, can be used with (e.g. [Grunt](http://gruntjs.com), [Jake](https://github.com/mde/jake) or any other task runner or in a standlone script
+- Completely generic, can be used with (e.g. [Grunt](http://gruntjs.com), [Jake](https://github.com/mde/jake) or any other task runner or in a standlone script)
 
 
 ## Usage
