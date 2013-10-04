@@ -23,7 +23,8 @@ var template = {
             locals = e.config.data;
         }
 
-        done(null, mustache.render(e.data.toString(), locals));
+        var template = mustache.compile(e.data.toString(), e.config.tags);
+        done(null, template(locals));
 
     }
 
@@ -33,9 +34,10 @@ var template = {
 // Factory --------------------------------------------------------------------
 module.exports = {
 
-    task: function(pattern, data) {
+    task: function(pattern, data, tags) {
         return new Task('Template', pattern, template, {
-            data: data
+            data: data,
+            tags: tags || mustache.tags
         });
     }
 
