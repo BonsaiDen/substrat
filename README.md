@@ -117,7 +117,43 @@ single page static / applications in mind.
             // Copy all other files which did not match any previous tasks
             substrat.task.copy(patterns.all)
         
-        ]
+        ],
+
+        // Setup some proxies for testing and local database access
+        proxy: {
+
+            // Proxy the local couchdb instance to avoid messy CORS setup during 
+            // development
+            '/couchdb': {
+
+                // URL is the target of the proxy
+                host: 'localhost',
+                port: 5984,
+
+                // Add 500 milliseconds of delay to each request
+                delay: 500
+
+            },
+
+            // Proxy the "public" directory itself but "mock" out a couple of
+            // files to inject test mocks / frameworks
+            '/test': {
+
+                // Path is the directory to serve 
+                root: 'public',
+
+                // Replace the main application file and include additional files 
+                // for testing
+                mock: {
+                    'js/app.js': [
+                        'test/e2e/app.js',
+                        'test/e2e/mocks.js'
+                    ]
+                }
+
+            }
+
+        }
         
     });
     ```

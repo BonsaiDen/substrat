@@ -1,5 +1,5 @@
 {
-  "version": "0.2.9",
+  "version": "0.3.0",
   "name": "substrat",
   "description": "A powerful yet simple build system for HTML5 projects.",
   "keywords": [
@@ -37,6 +37,7 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "nodeunit": "~0.8.1"
+    "nodeunit": "~0.8.1",
+    "http-proxy": "~0.10.3"
   }
 }
