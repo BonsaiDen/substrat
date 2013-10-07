@@ -20,6 +20,12 @@ single page static / applications in mind.
     - Generating files from templates (using [mustache.js](https://github.com/janl/mustache.js))
     - Dynamic file generation (using your custom functions)
 
+- Easily set up proxies:
+
+    - Avoid CORS configuration and other issues during local development
+    - Proxy a directory and easily inject mocks for your tests
+    - Add delays to all requests in order to simulate bad networks
+
 - Is easy to extend with your own, custom tasks
 - Completely generic, can be used with (e.g. [Grunt](http://gruntjs.com), [Jake](https://github.com/mde/jake) or any other task runner or in a standlone script)
 
@@ -139,7 +145,7 @@ single page static / applications in mind.
             // files to inject test mocks / frameworks
             '/test': {
 
-                // Path is the directory to serve 
+                // The directory to serve 
                 root: 'public',
 
                 // Replace the main application file and include additional files 
@@ -214,6 +220,12 @@ Read on for more details on the configuration options and tasks.
     matched from the list of files that have changed.
 
     See the [Tasks](#tasks) section for more details.
+
+- `proxy`: *Object*
+
+    A mapping of paths to proxy configurations.
+
+    See the [Proxy](#proxy) section for more details.
 
 
 ## Methods
@@ -365,15 +377,79 @@ Tasks in substrat are highly configurable and easy to extend.
 
 - __Compile__
 
+    `substrat.task.compile(pattern, compiler[, config])`
+
+    Compiles all the files matching the `pattern` from the `src` to the `dest` 
+    using the specified `compiler`. Following compilers are available out of the box:
+
+    > Note: The compile tasks by will **only** obfuscate and/or minify their 
+    > output when the `substrat.compress` option is set.
+
+    - `js`
+        
+        Compiles JavaScript files using `uglify-js`, if the `substrat.compress` 
+        option is **enabled**,  otherwise it will simply copy the JS files.
+
+        __Example: Minifying all applications JS files__
+
+            substrat.task.compile('js/**/*.js', 'js')
+
+    - `less`
+        
+        Compiles `less` files into CSS, changing the file extension in the process.
+        If `substrat.compress` is set it will stip whitespace from the output files.
+
+        __Example: Transforming less files into CSS__
+
+            substrat.task.compile(/*\.less$/, 'less')
+
+    - `jade`
+        
+        Compiles `jade` files into HTML, changing the file extension in the process.
+        The `config` paramter should be an object and will be populate the **locals** 
+        of the template.
+
+        __Example: Converting all jade templates into HTML__
+
+            substrat.task.compile(/*\.jade$/, 'jade', config)
+
+
 - __Concat__
+
+    `substrat.task.compile(pattern, type, outputFile)`
+
+    This task is pretty much the same as `compile` task but only supports `js` 
+    and `less` at the moment and will merge all the files into the specified 
+    `outputFile`.
+
 
 - __Copy__
 
-- __Generate__
+    `substrat.task.compile(pattern)`
+
+    Copies all the files matching the `pattern` from the `src` to the `dest` 
+    directory. This task uses `fs.stream` interally for efficient copying and 
+    will create directories in the destination as requried.
+
+    __Example: Copying all outstanding files as the last task__
+
+        substrat.task.copy('*')
+
 
 - __Template__
 
-Documentation coming soon.
+    `substrat.task.template(pattern, locals [, tags])`
+
+    Compiles all files matching the `pattern` as `mustache.js` templates and 
+    supplies them with `locals`. The files get rendered to a file with the same 
+    name in the `dest` directory.
+
+    The optional`tags` array can be used to replace the default tags used in 
+    mustache templates with custom ones. e.g. `['<%', '%>']`.
+
+    __Example: Rendering configuration file with custom tags to keep it JSHint friendly__
+
+        substrat.task.template('js/config.js', config, ['"{{', '}}"']),
 
 
 ### Custom Tasks
@@ -560,6 +636,24 @@ description and has the following structure:
 
     *Only for tasks running with mode `Task.All`*
 
+
+### Proxy
+
+Substrat can be used to quickly configure proxies to both http endpoints as well 
+as local directories, this is done via the `substrat.proxy` option which takes a 
+mapping of absolute paths to **proxy configuration objects** having the following 
+structure:
+
+- `host`: *String*
+
+- `port`: *Integer*
+
+- `delay`: *Integer*
+
+- `root`: *String*
+
+- `mock`: *Object*
+    
 
 ## Outstanding Features / Fixes
 
