@@ -37,6 +37,9 @@
     "node": ">=0.8",
     "npm": ">= 1"
   },
+  "scripts": {
+    "test": "nodeunit test/test.js"
+  },
   "license": "MIT",
   "devDependencies": {
     "nodeunit": "~0.8.1"

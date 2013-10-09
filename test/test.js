@@ -279,3 +279,45 @@ exports.patterns = {
 
 };
 
+exports.tasks = {
+
+    compile: function(test) {
+        test.ok(substrat.task.compile(/\.js$/, 'js'));
+        test.ok(substrat.task.compile(/\.jade$/, 'jade'));
+        test.ok(substrat.task.compile(/\.less$/, 'less'));
+        test.done();
+    },
+
+    concat: function(test) {
+        test.ok(substrat.task.concat(/\.js$/, 'js'));
+        test.ok(substrat.task.concat(/\.less$/, 'less'));
+        test.done();
+    },
+
+    copy: function(test) {
+        test.ok(substrat.task.copy('*'));
+        test.done();
+    },
+
+    template: function(test) {
+        test.ok(substrat.task.template('file.tpl', {}, ['"{{', '}}"']));
+        test.done();
+    }
+
+};
+
+exports.substrat = {
+
+    init: function(test) {
+        var sub = substrat.init({});
+        test.strictEqual(typeof sub.run, 'function');
+        test.strictEqual(typeof sub.watch, 'function');
+        test.strictEqual(typeof sub.listen, 'function');
+        test.strictEqual(typeof sub.stop, 'function');
+        test.strictEqual(typeof sub.pattern, 'function');
+        test.strictEqual(typeof sub.files, 'function');
+        test.done();
+    }
+
+};
+
