@@ -225,7 +225,7 @@ Read on for more details on the configuration options and tasks.
 
     A mapping of paths to proxy configurations.
 
-    See the [Proxy](#proxy) section for more details.
+    See the [Proxies](#proxies) section for more details.
 
 
 ## Methods
@@ -637,7 +637,7 @@ description and has the following structure:
     *Only for tasks running with mode `Task.All`*
 
 
-### Proxy
+## Proxies
 
 Substrat can be used to quickly configure proxies to both http endpoints as well 
 as local directories, this is done via the `substrat.proxy` option which takes a 
