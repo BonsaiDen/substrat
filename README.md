@@ -1,4 +1,4 @@
-# Substrat - Relax your build ![Build Status](https://api.travis-ci.org/BonsaiDen/substrat.png)](https://travis-ci.org/BonsaiDen/substrat.png)
+# Substrat - Relax your build ![Build Status](https://api.travis-ci.org/BonsaiDen/substrat.png)
 
 **Substrat** is a powerful yet simple build system for HTML5 projects. 
 
