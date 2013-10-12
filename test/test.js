@@ -297,7 +297,7 @@ function run(test, tasks, callback) {
                 data = null;
 
             try {
-                files = fs.readdirSync('test/public');
+                files = fs.readdirSync('test/public').sort();
                 data = new Array(files.length);
                 files.forEach(function(file, index) {
                     data[index] = fs.readFileSync('test/public/' + file).toString();
@@ -309,7 +309,7 @@ function run(test, tasks, callback) {
             }
 
             try {
-                callback(files.sort(), data);
+                callback(files, data);
                 test.done();
 
             } catch(err) {
