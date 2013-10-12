@@ -285,7 +285,7 @@ function run(test, tasks, callback) {
     var sub = substrat.init({
         src: 'test/src',
         dest: 'test/public',
-        silent: true,
+        quiet: true,
         tasks: tasks || []
     });
 
@@ -293,16 +293,23 @@ function run(test, tasks, callback) {
 
         sub.once('done', function() {
 
-            var files = null;
+            var files = null,
+                data = null;
+
             try {
                 files = fs.readdirSync('test/public');
+                data = new Array(files.length);
+                files.forEach(function(file, index) {
+                    data[index] = fs.readFileSync('test/public/' + file).toString();
+                });
 
             } catch(e) {
                 files = [];
+                data = [];
             }
 
             try {
-                callback(files.sort());
+                callback(files.sort(), data);
                 test.done();
 
             } catch(err) {
@@ -346,8 +353,15 @@ exports.tasks = {
             substrat.task.compile(/\.less$/, 'less')
         ];
 
-        run(test, tasks, function(files) {
+        run(test, tasks, function(files, data) {
+
             test.deepEqual(files, ['test.css', 'test.html', 'test.js']);
+            test.deepEqual(data, [
+                '#test {\n  color: #ff0000;\n}\n.test {\n  color: #ff0000;\n}\n/*# sourceMappingURL=data:application/json,%7B%22version%22%3A3%2C%22sources%22%3A%5B%22test.less%22%5D%2C%22names%22%3A%5B%5D%2C%22mappings%22%3A%22AAEM%3BEACF%2CcAAA%3B%3BAAGE%3BEACF%2CcAAA%22%7D */',
+                '\n<html>\n  <head></head>\n  <body></body>\n</html>',
+                'function test(foo, bar) {\n    return foo + bar + 2;\n}\n'
+            ]);
+
         });
 
     },
@@ -359,8 +373,14 @@ exports.tasks = {
             substrat.task.concat(/\.less$/, 'less', 'all.css')
         ];
 
-        run(test, tasks, function(files) {
+        run(test, tasks, function(files, data) {
+
             test.deepEqual(files, ['all.css', 'all.js']);
+            test.deepEqual(data, [
+                '#test {\n  color: #ff0000;\n}\n.test {\n  color: #ff0000;\n}\n/*# sourceMappingURL=data:application/json,%7B%22version%22%3A3%2C%22sources%22%3A%5B%22input%22%5D%2C%22names%22%3A%5B%5D%2C%22mappings%22%3A%22AAEM%3BEACF%2CcAAA%3B%3BAAGE%3BEACF%2CcAAA%22%7D */',
+                'function test(foo, bar) {\n    return foo + bar + 2;\n}\n'
+            ]);
+
         });
 
     },
@@ -371,14 +391,24 @@ exports.tasks = {
             substrat.task.copy('*')
         ];
 
-        run(test, tasks, function(files) {
+        run(test, tasks, function(files, data) {
+
             test.deepEqual(files, [
                 'test.jade',
                 'test.js',
+                'test.json',
                 'test.less',
-                'test.md',
-                'test.tpl'
+                'test.md'
             ]);
+
+            test.deepEqual(data, [
+                'html\n  head\n\n  body\n',
+                'function test(foo, bar) {\n    return foo + bar + 2;\n}\n',
+                '{\n    "string": \'"{{{String}}}"\',\n    "object": "{{{Object}}}"\n}\n',
+                '@red: #ff0000;\n\n#test {\n    color: @red;\n}\n\n.test {\n    color: @red;\n}\n\n',
+                '## Test\n\nTest.\n'
+            ]);
+
         });
 
     },
@@ -386,11 +416,22 @@ exports.tasks = {
     template: function(test) {
 
         var tasks = [
-            substrat.task.template('test.tpl', {}, ['"{{', '}}"'])
+            substrat.task.template('test.json', {
+                Object: JSON.stringify({
+                    test: 'test'
+                }),
+                String: 'Test'
+
+            }, ['"{{', '}}"'])
         ];
 
-        run(test, tasks, function(files) {
-            test.deepEqual(files, ['test.tpl']);
+        run(test, tasks, function(files, data) {
+
+            test.deepEqual(data, [
+                '{\n    "string": \'Test\',\n    "object": {"test":"test"}\n}\n'
+            ]);
+            test.deepEqual(files, ['test.json']);
+
         });
 
     }
