@@ -1,4 +1,5 @@
-var substrat = require('../index');
+var substrat = require('../index'),
+    fs = require('fs.extra');
 
 
 // Test Patterns --------------------------------------------------------------
@@ -279,44 +280,119 @@ exports.patterns = {
 
 };
 
-exports.tasks = {
+function run(test, tasks, callback) {
 
-    compile: function(test) {
-        test.ok(substrat.task.compile(/\.js$/, 'js'));
-        test.ok(substrat.task.compile(/\.jade$/, 'jade'));
-        test.ok(substrat.task.compile(/\.less$/, 'less'));
-        test.done();
-    },
+    var sub = substrat.init({
+        src: 'test/src',
+        dest: 'test/public',
+        silent: true,
+        tasks: tasks || []
+    });
 
-    concat: function(test) {
-        test.ok(substrat.task.concat(/\.js$/, 'js'));
-        test.ok(substrat.task.concat(/\.less$/, 'less'));
-        test.done();
-    },
+    fs.rmdir('./test/public', function(err) {
 
-    copy: function(test) {
-        test.ok(substrat.task.copy('*'));
-        test.done();
-    },
+        sub.once('done', function() {
 
-    template: function(test) {
-        test.ok(substrat.task.template('file.tpl', {}, ['"{{', '}}"']));
-        test.done();
-    }
+            var files = null;
+            try {
+                files = fs.readdirSync('test/public');
 
-};
+            } catch(e) {
+                files = [];
+            }
+
+            try {
+                callback(files.sort());
+                test.done();
+
+            } catch(err) {
+                test.fail(err);
+            }
+
+        });
+
+        sub.run();
+
+    });
+
+    return sub;
+
+}
 
 exports.substrat = {
 
     init: function(test) {
-        var sub = substrat.init({});
-        test.strictEqual(typeof sub.run, 'function');
-        test.strictEqual(typeof sub.watch, 'function');
-        test.strictEqual(typeof sub.listen, 'function');
-        test.strictEqual(typeof sub.stop, 'function');
-        test.strictEqual(typeof sub.pattern, 'function');
-        test.strictEqual(typeof sub.files, 'function');
-        test.done();
+
+        var sub = run(test, null, function() {
+            test.strictEqual(typeof sub.run, 'function');
+            test.strictEqual(typeof sub.watch, 'function');
+            test.strictEqual(typeof sub.listen, 'function');
+            test.strictEqual(typeof sub.stop, 'function');
+            test.strictEqual(typeof sub.pattern, 'function');
+            test.strictEqual(typeof sub.files, 'function');
+        });
+
+    }
+
+};
+
+exports.tasks = {
+
+    compile: function(test) {
+
+        var tasks = [
+            substrat.task.compile(/\.js$/, 'js'),
+            substrat.task.compile(/\.jade$/, 'jade'),
+            substrat.task.compile(/\.less$/, 'less')
+        ];
+
+        run(test, tasks, function(files) {
+            test.deepEqual(files, ['test.css', 'test.html', 'test.js']);
+        });
+
+    },
+
+    concat: function(test) {
+
+        var tasks = [
+            substrat.task.concat(/\.js$/, 'js', 'all.js'),
+            substrat.task.concat(/\.less$/, 'less', 'all.css')
+        ];
+
+        run(test, tasks, function(files) {
+            test.deepEqual(files, ['all.css', 'all.js']);
+        });
+
+    },
+
+    copy: function(test) {
+
+        var tasks = [
+            substrat.task.copy('*')
+        ];
+
+        run(test, tasks, function(files) {
+            test.deepEqual(files, [
+                'test.jade',
+                'test.js',
+                'test.less',
+                'test.md',
+                'test.tpl'
+            ]);
+        });
+
+    },
+
+    template: function(test) {
+
+        var tasks = [
+            substrat.task.template('test.tpl', {}, ['"{{', '}}"'])
+        ];
+
+        run(test, tasks, function(files) {
+            test.deepEqual(files, ['test.tpl']);
+        });
+
     }
 
 };
