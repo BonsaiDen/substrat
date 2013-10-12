@@ -89,9 +89,12 @@ single page static / applications in mind.
         // The destination directory for the build
         dest: 'public',
 
-        // Whether or not to log build events
+        // Whether or not to log build events, will still print general info
         silent: false,
         
+        // Will disable all logging (sets silent to true)
+        quiet: false,
+
         // If true, will produce lots of internal logging output
         debug: false,
 
@@ -189,7 +192,11 @@ Read on for more details on the configuration options and tasks.
 
 - `silent`: *Boolean (false)*
 
-    If `true` disables substrat logging.
+    If `true` disables substrat logging (except for top level logs).
+
+- `quiet`: *Boolean (false)*
+
+    If `true` disables **all** substrat logging (enables `silent`).
 
 - `debug`: *Boolean (false)*
 
