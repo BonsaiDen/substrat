@@ -1,0 +1,794 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Substrat by BonsaiDen</title>
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="javascripts/main.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+  </head>
+  <body>
+
+      <header>
+        <h1>Substrat</h1>
+        <p>Simple, automatic build system for single page web applications. </p>
+      </header>
+
+      <div id="banner">
+        <span id="logo"></span>
+
+        <a href="https://github.com/BonsaiDen/substrat" class="button fork"><strong>View On GitHub</strong></a>
+        <div class="downloads">
+          <span>Downloads:</span>
+          <ul>
+            <li><a href="https://github.com/BonsaiDen/substrat/zipball/master" class="button">ZIP</a></li>
+            <li><a href="https://github.com/BonsaiDen/substrat/tarball/master" class="button">TAR</a></li>
+          </ul>
+        </div>
+      </div><!-- end banner -->
+
+    <div class="wrapper">
+      <nav>
+        <ul></ul>
+      </nav>
+      <section>
+        <h1>
+<a name="substrat---relax-your-build-" class="anchor" href="#substrat---relax-your-build-"><span class="octicon octicon-link"></span></a>Substrat - Relax your build <img src="https://api.travis-ci.org/BonsaiDen/substrat.png" alt="Build Status">
+</h1>
+
+<p><strong>Substrat</strong> is a powerful yet simple build system for HTML5 projects. </p>
+
+<p>It's easy and quick to set up, configurable, extendable and built with for 
+frontend heavy, single page applications.</p>
+
+<p><img src="https://nodei.co/npm/substrat.png" alt="npm Details"></p>
+
+<h2>
+<a name="features" class="anchor" href="#features"><span class="octicon octicon-link"></span></a>Features</h2>
+
+<ul>
+<li>Automatic monitoring and syncing our source and build directories</li>
+<li>Supports complex <a href="#patterns">file patterns</a> for file filtering and ordering</li>
+<li>Has task dependencies to re-build files when other files are changed (based on patterns)</li>
+<li>Built in static web server with support for automatic page reload on each build </li>
+<li>
+<p>Comes with many built-in tasks for things like:</p>
+
+<ul>
+<li>JS Minification (using <a href="https://github.com/mishoo/UglifyJS2">UglifyJS</a>)</li>
+<li>Stylesheet compilation (using <a href="https://github.com/less/less.js">lesscss</a>)</li>
+<li>HTML Templating (using <a href="https://github.com/visionmedia/jade">Jade</a>)</li>
+<li>Markdown to HTML (using <a href="https://github.com/evilstreak/markdown-js">markdown-js</a>)</li>
+<li>Generating files from templates (using <a href="https://github.com/janl/mustache.js">mustache.js</a>)</li>
+<li>Dynamic file generation (using your custom functions)</li>
+</ul>
+</li>
+<li>
+<p>Easily set up proxies:</p>
+
+<ul>
+<li>Avoid CORS configuration and other issues during local development</li>
+<li>Proxy a directory and easily inject mocks for your tests</li>
+<li>Add delays to all requests in order to simulate bad networks</li>
+</ul>
+</li>
+<li><p>Is easy to extend with your own, custom tasks</p></li>
+<li><p>Completely generic, can be used with (e.g. <a href="http://gruntjs.com">Grunt</a>, <a href="https://github.com/mde/jake">Jake</a> or any other task runner or in a standlone script)</p></li>
+</ul><h2>
+<a name="usage" class="anchor" href="#usage"><span class="octicon octicon-link"></span></a>Usage</h2>
+
+<ol>
+<li>
+<p>Get it via <code>npm install substrat</code></p>
+
+<div class="highlight highlight-javascript"><pre><span class="kd">var</span> <span class="nx">substrat</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'substrat'</span><span class="p">);</span>
+</pre></div>
+</li>
+<li>
+<p>Setup your patterns, these allow you to group and filter the files for your build</p>
+
+<div class="highlight highlight-javascript"><pre><span class="kd">var</span> <span class="nx">patterns</span> <span class="o">=</span> <span class="p">{</span>
+
+    <span class="nx">js</span><span class="o">:</span> <span class="p">{</span>
+        <span class="c1">// Match all source files of the application, and put app and config</span>
+        <span class="c1">// at the end when generating a array of the filenames from this pattern</span>
+        <span class="nx">app</span><span class="o">:</span> <span class="nx">substrat</span><span class="p">.</span><span class="nx">pattern</span><span class="p">(</span><span class="sr">/js\/.*\.js$/</span><span class="p">).</span><span class="nx">last</span><span class="p">(</span><span class="s1">'js/config.js'</span><span class="p">,</span> <span class="s1">'js/app.js'</span><span class="p">),</span>
+
+        <span class="c1">// Match all the javascript source files of the libraries, but ignore any pre-minified ones</span>
+        <span class="nx">lib</span><span class="o">:</span> <span class="nx">substrat</span><span class="p">.</span><span class="nx">pattern</span><span class="p">(</span><span class="sr">/lib\/.*\.js$/</span><span class="p">).</span><span class="nx">not</span><span class="p">(</span><span class="sr">/\.min\.js$/</span><span class="p">)</span>
+    <span class="p">},</span>
+
+    <span class="nx">compile</span><span class="o">:</span> <span class="p">{</span>
+        <span class="nx">jade</span><span class="o">:</span> <span class="nx">substrat</span><span class="p">.</span><span class="nx">pattern</span><span class="p">(</span><span class="sr">/\.jade$/</span><span class="p">),</span>
+        <span class="nx">less</span><span class="o">:</span> <span class="nx">substrat</span><span class="p">.</span><span class="nx">pattern</span><span class="p">(</span><span class="sr">/\.less$/</span><span class="p">)</span>
+    <span class="p">},</span>
+
+    <span class="c1">// Match all style sheets both generated and existing ones</span>
+    <span class="c1">// but put the generated ones at the end when generating a array of the</span>
+    <span class="c1">// filenames from this pattern</span>
+    <span class="nx">style</span><span class="o">:</span> <span class="nx">substrat</span><span class="p">.</span><span class="nx">pattern</span><span class="p">(</span><span class="sr">/(\.css|\.less)$/</span><span class="p">).</span><span class="nx">last</span><span class="p">(</span><span class="sr">/\.less$/</span><span class="p">),</span>
+
+    <span class="c1">// A matcher for everything else</span>
+    <span class="nx">all</span><span class="o">:</span> <span class="nx">substrat</span><span class="p">.</span><span class="nx">pattern</span><span class="p">(</span><span class="s1">'*'</span><span class="p">)</span>
+
+<span class="p">};</span>
+</pre></div>
+</li>
+<li>
+<p>Define an environment for the use in your templates, you can also expose the patterns so you can include all your scripts and styles automatically</p>
+
+<div class="highlight highlight-javascript"><pre><span class="kd">var</span> <span class="nx">env</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="nx">title</span><span class="o">:</span> <span class="s1">'Substrat'</span><span class="p">,</span>
+    <span class="nx">version</span><span class="o">:</span> <span class="mf">0.1</span><span class="p">,</span>
+    <span class="nx">patterns</span><span class="o">:</span> <span class="nx">patterns</span> <span class="c1">// Expose the patterns for later usage</span>
+<span class="p">};</span>
+</pre></div>
+</li>
+<li>
+<p>Create a new instance of substrat with your specific configuration</p>
+
+<div class="highlight highlight-javascript"><pre><span class="kd">var</span> <span class="nx">s</span> <span class="o">=</span> <span class="nx">substrat</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span>
+
+    <span class="c1">// The source directory to watch</span>
+    <span class="nx">src</span><span class="o">:</span> <span class="s1">'src'</span><span class="p">,</span>
+
+    <span class="c1">// The destination directory for the build</span>
+    <span class="nx">dest</span><span class="o">:</span> <span class="s1">'public'</span><span class="p">,</span>
+
+    <span class="c1">// Whether or not to log build events, will still print general info</span>
+    <span class="nx">silent</span><span class="o">:</span> <span class="kc">false</span><span class="p">,</span>
+
+    <span class="c1">// Will disable all logging (sets silent to true)</span>
+    <span class="nx">quiet</span><span class="o">:</span> <span class="kc">false</span><span class="p">,</span>
+
+    <span class="c1">// If true, will produce lots of internal logging output</span>
+    <span class="nx">debug</span><span class="o">:</span> <span class="kc">false</span><span class="p">,</span>
+
+    <span class="c1">// Enable compression in tasks (e.g. strip whitespace, minify js etc.)</span>
+    <span class="nx">compress</span><span class="o">:</span> <span class="kc">false</span><span class="p">,</span>
+
+    <span class="c1">// Set up dependencies</span>
+    <span class="nx">depends</span><span class="o">:</span> <span class="p">[</span>
+        <span class="c1">// Rebuild src/index.jade every time a js or less file changes</span>
+        <span class="c1">// This way, the template can automatically update the included</span>
+        <span class="c1">// scripts and styles</span>
+        <span class="p">[</span><span class="s1">'index.jade'</span><span class="p">,</span> <span class="p">[</span><span class="nx">patterns</span><span class="p">.</span><span class="nx">js</span><span class="p">,</span> <span class="nx">patterns</span><span class="p">.</span><span class="nx">style</span><span class="p">]]</span>
+    <span class="p">],</span>
+
+    <span class="c1">// Define the tasks</span>
+    <span class="c1">// Tasks are run in order, each task will filter out the files it matched</span>
+    <span class="c1">// so they are not subject to any further tasks in the chain</span>
+    <span class="nx">tasks</span><span class="o">:</span> <span class="p">[</span>
+
+        <span class="c1">// Compile all app specific scripts with uglify-js</span>
+        <span class="nx">substrat</span><span class="p">.</span><span class="nx">task</span><span class="p">.</span><span class="nx">compile</span><span class="p">(</span><span class="nx">patterns</span><span class="p">.</span><span class="nx">js</span><span class="p">.</span><span class="nx">app</span><span class="p">,</span> <span class="s1">'js'</span><span class="p">),</span>
+
+        <span class="c1">// Compile all jade files to html and supply them with the locals from "env"</span>
+        <span class="nx">substrat</span><span class="p">.</span><span class="nx">task</span><span class="p">.</span><span class="nx">compile</span><span class="p">(</span><span class="nx">patterns</span><span class="p">.</span><span class="nx">compile</span><span class="p">.</span><span class="nx">jade</span><span class="p">,</span> <span class="s1">'jade'</span><span class="p">,</span> <span class="nx">env</span><span class="p">),</span>
+
+        <span class="c1">// Compile all less stylesheets to css</span>
+        <span class="nx">substrat</span><span class="p">.</span><span class="nx">task</span><span class="p">.</span><span class="nx">compile</span><span class="p">(</span><span class="nx">patterns</span><span class="p">.</span><span class="nx">compile</span><span class="p">.</span><span class="nx">less</span><span class="p">,</span> <span class="s1">'less'</span><span class="p">),</span>
+
+        <span class="c1">// Copy all other files which did not match any previous tasks</span>
+        <span class="nx">substrat</span><span class="p">.</span><span class="nx">task</span><span class="p">.</span><span class="nx">copy</span><span class="p">(</span><span class="nx">patterns</span><span class="p">.</span><span class="nx">all</span><span class="p">)</span>
+
+    <span class="p">],</span>
+
+    <span class="c1">// Setup some proxies for testing and local database access</span>
+    <span class="nx">proxy</span><span class="o">:</span> <span class="p">{</span>
+
+        <span class="c1">// Proxy the local couchdb instance to avoid messy CORS setup during </span>
+        <span class="c1">// development</span>
+        <span class="s1">'/couchdb'</span><span class="o">:</span> <span class="p">{</span>
+
+            <span class="c1">// URL is the target of the proxy</span>
+            <span class="nx">host</span><span class="o">:</span> <span class="s1">'localhost'</span><span class="p">,</span>
+            <span class="nx">port</span><span class="o">:</span> <span class="mi">5984</span><span class="p">,</span>
+
+            <span class="c1">// Add 500 milliseconds of delay to each request</span>
+            <span class="nx">delay</span><span class="o">:</span> <span class="mi">500</span>
+
+        <span class="p">},</span>
+
+        <span class="c1">// Proxy the "public" directory itself but "mock" out a couple of</span>
+        <span class="c1">// files to inject test mocks / frameworks</span>
+        <span class="s1">'/test'</span><span class="o">:</span> <span class="p">{</span>
+
+            <span class="c1">// The directory to serve </span>
+            <span class="nx">root</span><span class="o">:</span> <span class="s1">'public'</span><span class="p">,</span>
+
+            <span class="c1">// Replace the main application file and include additional files </span>
+            <span class="c1">// for testing</span>
+            <span class="nx">mock</span><span class="o">:</span> <span class="p">{</span>
+                <span class="s1">'js/app.js'</span><span class="o">:</span> <span class="p">[</span>
+                    <span class="s1">'test/e2e/app.js'</span><span class="p">,</span>
+                    <span class="s1">'test/e2e/mocks.js'</span>
+                <span class="p">]</span>
+            <span class="p">}</span>
+
+        <span class="p">}</span>
+
+    <span class="p">}</span>
+
+<span class="p">});</span>
+</pre></div>
+</li>
+<li>
+<p>Start your continous build that automatically reloads your browser while you're editing</p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">s</span><span class="p">.</span><span class="nx">listen</span><span class="p">(</span><span class="mi">4444</span><span class="p">);</span>
+</pre></div>
+</li>
+</ol><p>Read on for more details on the configuration options and tasks.</p>
+
+<h2>
+<a name="configuration-options" class="anchor" href="#configuration-options"><span class="octicon octicon-link"></span></a>Configuration Options</h2>
+
+<ul>
+<li>
+<p><code>src</code>: <em>String</em></p>
+
+<p>The source directory which contains the file to build.</p>
+</li>
+<li>
+<p><code>dest</code>: <em>String</em></p>
+
+<p>The destination directory were the files produced by the build are to be found.</p>
+
+<p>The contents of the directory are automatically synced with the source, 
+meaning that files and folders which no longer exist in the source directory 
+will automatically be removed.</p>
+</li>
+<li>
+<p><code>silent</code>: <em>Boolean (false)</em></p>
+
+<p>If <code>true</code> disables substrat logging (except for top level logs).</p>
+</li>
+<li>
+<p><code>quiet</code>: <em>Boolean (false)</em></p>
+
+<p>If <code>true</code> disables <strong>all</strong> substrat logging (enables <code>silent</code>).</p>
+</li>
+<li>
+<p><code>debug</code>: <em>Boolean (false)</em></p>
+
+<p>If <code>true</code> enables internal logging of substrat's components.</p>
+</li>
+<li>
+<p><code>hidden</code>: <em>Boolean (true)</em></p>
+
+<p>When <code>true</code> substrat will ingore any dotfiles.</p>
+</li>
+<li>
+<p><code>compress</code>: <em>Boolean(false)</em></p>
+
+<p>A flag which indicates to tasks that the should compress / minify their 
+output.</p>
+
+<p>See the <a href="#tasks">Tasks</a> section for more details.</p>
+</li>
+<li>
+<p><code>depends</code>: <em>Array[Array[Pattern, Pattern|Array[Patterns]]...]</em></p>
+
+<p>A array containing arrays of patterns which specify which files should be 
+rebuild once other files matching the specified patterns have changed.</p>
+
+<p>See the <a href="#dependencies">Dependencies</a> section for more details.</p>
+</li>
+<li>
+<p><code>tasks</code>: <em>Array</em></p>
+
+<p>A listing of tasks which will be executed in order once the contents of the 
+<code>src</code> directory change. Each successive tasks will filter out the files it 
+matched from the list of files that have changed.</p>
+
+<p>See the <a href="#tasks">Tasks</a> section for more details.</p>
+</li>
+<li>
+<p><code>proxy</code>: <em>Object</em></p>
+
+<p>A mapping of paths to proxy configurations.</p>
+
+<p>See the <a href="#proxies">Proxies</a> section for more details.</p>
+</li>
+</ul><h2>
+<a name="methods" class="anchor" href="#methods"><span class="octicon octicon-link"></span></a>Methods</h2>
+
+<ul>
+<li>
+<p><code>run()</code> -&gt; <em>this</em></p>
+
+<p>Invokes the build once and then finishes.</p>
+
+<p>Will emit the <code>done</code> event once the build has finished.</p>
+</li>
+<li>
+<p><code>watch()</code> -&gt; <em>this</em></p>
+
+<p>Will continously monitor the source directory for changed and re-build 
+automatically.</p>
+
+<p>Triggers a <code>build</code> event after each completed build.</p>
+</li>
+<li>
+<p><code>listen(indexUrl, port [, host])</code> -&gt; <em>this</em></p>
+
+<p>Same as <code>watch()</code> but will also start a local web server on the specified 
+<code>host</code> and <code>port</code> and will patch the specified <code>indexUrl</code> HTML file to 
+automatically  reload on every build.</p>
+
+<p>To disable automatic reloading, simply pass <code>null</code> as the value of <code>indexUrl</code>.</p>
+</li>
+<li>
+<p><code>stop()</code> -&gt; <em>this</em></p>
+
+<p>Stops substrat in case it is watching or listening.</p>
+
+<p>Triggers the <code>done</code> event.</p>
+</li>
+<li>
+<p><code>pattern(expr)</code> -&gt; <em>Pattern</em></p>
+
+<p>Creates a new substrat pattern from the given expression.</p>
+</li>
+<li>
+<p><code>files(pattern)</code> -&gt; <em>Array[String]</em></p>
+
+<p>Returns a list of files for the <strong>destination</strong> directory which match the 
+specified pattern(s).</p>
+</li>
+</ul><h2>
+<a name="patterns" class="anchor" href="#patterns"><span class="octicon octicon-link"></span></a>Patterns</h2>
+
+<p>Substrat makes heavy use of patterns for both file matching and listing.</p>
+
+<p>Patterns can be created from a variety of sources and are converted to regular 
+expressions internally. You can also create pass objects of patterns which will 
+be merged, as well as arrays which will concatenate their matches.</p>
+
+<blockquote>
+<p>Note: All paths and files within substrat are treated relative to either the 
+<code>src</code> or <code>dest</code> directories. E.g. <code>/home/user/project/src/js/app.js</code> will be 
+treated as <code>js/app.js</code>.</p>
+</blockquote>
+
+<h3>
+<a name="from-strings" class="anchor" href="#from-strings"><span class="octicon octicon-link"></span></a>From Strings</h3>
+
+<p>All strings parsed via <a href="https://github.com/isaacs/minimatch">minimatch</a> and 
+converted into regular expressions. This means that you can use standard <em>glob</em> 
+patterns like <code>**/*.js</code> and the like.</p>
+
+<p>The only exception to this rule is the special string <code>*</code> which will get 
+converted to <code>/^.*$/</code>.</p>
+
+<h3>
+<a name="from-regular-expressions" class="anchor" href="#from-regular-expressions"><span class="octicon octicon-link"></span></a>From Regular Expressions</h3>
+
+<p>You can pass any valid regular expression as a pattern.</p>
+
+<h3>
+<a name="from-objects" class="anchor" href="#from-objects"><span class="octicon octicon-link"></span></a>From Objects</h3>
+
+<p>Patterns from objects are merged, they object's keys are sorted via the standard 
+<code>sort()</code> function and are then used to merge the object's values into a new 
+pattern.</p>
+
+<h3>
+<a name="from-functions" class="anchor" href="#from-functions"><span class="octicon octicon-link"></span></a>From Functions</h3>
+
+<p>Functions which are passed as pattern will get invoked with the filename they
+should test for matching. They should return either <code>true</code> or <code>false</code>.</p>
+
+<h3>
+<a name="from-arrays" class="anchor" href="#from-arrays"><span class="octicon octicon-link"></span></a>From Arrays</h3>
+
+<p>Arrays will create so called <em>Pattern Groups</em>. Pattern groups apply all included 
+patterns in order and will preserve the ordering of the files returned by the
+individual sub patterns.</p>
+
+<h3>
+<a name="ordering" class="anchor" href="#ordering"><span class="octicon octicon-link"></span></a>Ordering</h3>
+
+<p>Patterns have the very useful <code>pattern.first(patterns...)</code> and 
+<code>pattern.last(patterns...)</code> methods which will move the files matching the 
+specified patterns either to the beginning or the end of the file list. </p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">substrat</span><span class="p">.</span><span class="nx">pattern</span><span class="p">(</span><span class="sr">/js\/.*\.js$/</span><span class="p">).</span><span class="nx">first</span><span class="p">(</span><span class="s1">'js/config.js'</span><span class="p">).</span><span class="nx">last</span><span class="p">(</span><span class="s1">'js/init.js'</span><span class="p">,</span> <span class="s1">'js/afterInit.js'</span><span class="p">);</span>
+</pre></div>
+
+<p>For example, this allows you to get a list of all JavaScript files in your 
+application and then put the file that defines your namespaces and configuration 
+and the beginning
+of the list and the file initializing your code at the very end.</p>
+
+<h3>
+<a name="exclusion" class="anchor" href="#exclusion"><span class="octicon octicon-link"></span></a>Exclusion</h3>
+
+<p>In addition patterns can include one or more files via the 
+<code>pattern.not(pattern...)</code> method.</p>
+
+<h2>
+<a name="dependencies" class="anchor" href="#dependencies"><span class="octicon octicon-link"></span></a>Dependencies</h2>
+
+<p>Substrat includes a minimal - but efficient - dependency management for files 
+which is also based on pattern.</p>
+
+<p>Dependencies are specified in the format of an array with two entries. The first 
+one is a pattern which describes which files will be re-build and the second 
+entry being a pattern which specifies which files will trigger the re-build.</p>
+
+<div class="highlight highlight-javascript"><pre><span class="p">[</span><span class="s1">'index.jade'</span><span class="p">,</span> <span class="p">[</span><span class="sr">/*.js$/</span><span class="p">,</span> <span class="sr">/*.less$/</span><span class="p">]]</span>
+</pre></div>
+
+<p>The above will rebuild <code>index.jade</code> every time that a <code>.js</code> or <code>.less</code> file has 
+been added, changed or removed from the source directory.</p>
+
+<p>Of course it is also possibly to re-build multiple files, simply supply a more 
+complex pattern as the first entry of the array:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="p">[</span><span class="sr">/template\/view\/controller\/*.jade$/</span><span class="p">,</span> <span class="p">[</span><span class="sr">/*.js$/</span><span class="p">,</span> <span class="sr">/*.less$/</span><span class="p">]]</span>
+</pre></div>
+
+<blockquote>
+<p>Note: Every rebuild will trigger another check for dependencies. 
+This allows for the creation of dependencies that depend on other dependencies.</p>
+</blockquote>
+
+<h2>
+<a name="tasks" class="anchor" href="#tasks"><span class="octicon octicon-link"></span></a>Tasks</h2>
+
+<p>Tasks in substrat are highly configurable and easy to extend.</p>
+
+<h3>
+<a name="built-in-tasks" class="anchor" href="#built-in-tasks"><span class="octicon octicon-link"></span></a>Built-in Tasks</h3>
+
+<ul>
+<li>
+<p><strong>Compile</strong></p>
+
+<p><code>substrat.task.compile(pattern, compiler[, config])</code></p>
+
+<p>Compiles all the files matching the <code>pattern</code> from the <code>src</code> to the <code>dest</code> 
+using the specified <code>compiler</code>. Following compilers are available out of the box:</p>
+
+<blockquote>
+<p>Note: The compile tasks by will <strong>only</strong> obfuscate and/or minify their 
+output when the <code>substrat.compress</code> option is set.</p>
+</blockquote>
+
+<ul>
+<li>
+<p><code>js</code></p>
+
+<p>Compiles JavaScript files using <code>uglify-js</code>, if the <code>substrat.compress</code> 
+option is <strong>enabled</strong>,  otherwise it will simply copy the JS files.</p>
+
+<p><strong>Example: Minifying all applications JS files</strong></p>
+
+<pre><code>substrat.task.compile('js/**/*.js', 'js')
+</code></pre>
+</li>
+<li>
+<p><code>less</code></p>
+
+<p>Compiles <code>less</code> files into CSS, changing the file extension in the process.
+If <code>substrat.compress</code> is set it will stip whitespace from the output files.</p>
+
+<p><strong>Example: Transforming less files into CSS</strong></p>
+
+<pre><code>substrat.task.compile(/*\.less$/, 'less')
+</code></pre>
+</li>
+<li>
+<p><code>jade</code></p>
+
+<p>Compiles <code>jade</code> files into HTML, changing the file extension in the process.
+The <code>config</code> paramter should be an object and will be populate the <strong>locals</strong> 
+of the template.</p>
+
+<p><strong>Example: Converting all jade templates into HTML</strong></p>
+
+<pre><code>substrat.task.compile(/*\.jade$/, 'jade', config)
+</code></pre>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Concat</strong></p>
+
+<p><code>substrat.task.compile(pattern, type, outputFile)</code></p>
+
+<p>This task is pretty much the same as <code>compile</code> task but only supports <code>js</code> 
+and <code>less</code> at the moment and will merge all the files into the specified 
+<code>outputFile</code>.</p>
+</li>
+<li>
+<p><strong>Copy</strong></p>
+
+<p><code>substrat.task.compile(pattern)</code></p>
+
+<p>Copies all the files matching the <code>pattern</code> from the <code>src</code> to the <code>dest</code> 
+directory. This task uses <code>fs.stream</code> interally for efficient copying and 
+will create directories in the destination as requried.</p>
+
+<p><strong>Example: Copying all outstanding files as the last task</strong></p>
+
+<pre><code>substrat.task.copy('*')
+</code></pre>
+</li>
+<li>
+<p><strong>Template</strong></p>
+
+<p><code>substrat.task.template(pattern, locals [, tags])</code></p>
+
+<p>Compiles all files matching the <code>pattern</code> as <code>mustache.js</code> templates and 
+supplies them with <code>locals</code>. The files get rendered to a file with the same 
+name in the <code>dest</code> directory.</p>
+
+<p>The optional<code>tags</code> array can be used to replace the default tags used in 
+mustache templates with custom ones. e.g. <code>['&lt;%', '%&gt;']</code>.</p>
+
+<p><strong>Example: Rendering configuration file with custom tags to keep it JSHint friendly</strong></p>
+
+<pre><code>substrat.task.template('js/config.js', config, ['"{{', '}}"']),
+</code></pre>
+</li>
+</ul><h3>
+<a name="custom-tasks" class="anchor" href="#custom-tasks"><span class="octicon octicon-link"></span></a>Custom Tasks</h3>
+
+<p>New tasks can be created via the <code>substrat.Task</code> constructor:</p>
+
+<pre><code>new substrat.Task(taskName, filePattern, handler, config)
+</code></pre>
+
+<ul>
+<li>
+<p><code>taskName</code>: <em>String</em></p>
+
+<p>This simply is a internal name for the task which is used in debug logging.</p>
+</li>
+<li>
+<p><code>filePattern</code>: <em>Pattern</em></p>
+
+<p>A substrat pattern which describes all files for which the task should be 
+executed.</p>
+
+<blockquote>
+<p>Note: A <code>null</code> pattern will run the task on every build, not matter which 
+files have changed.</p>
+</blockquote>
+</li>
+<li>
+<p><code>handlerDescription</code>: <em>Object</em></p>
+
+<p>A object which implements the actual logic of the task.</p>
+</li>
+<li>
+<p><code>config</code>: <em>Object</em></p>
+
+<p>Additional configuration which is available to the task logic during 
+execution.</p>
+</li>
+</ul><h3>
+<a name="task-handler-description" class="anchor" href="#task-handler-description"><span class="octicon octicon-link"></span></a>Task Handler Description</h3>
+
+<p>A task handler description consists of a number of properties and methods:</p>
+
+<pre><code>var handlerDescription = {
+
+    // Run the task independently for each file
+    mode: substrat.Task.Each,
+
+    // Automatically provide the file data to the task
+    data: true,
+
+    // Map the source files to html files in the output
+    map: function(e, file) {
+        return file.replace(/\.jade$/, '.html');
+    },
+
+    // The actual task logic
+    run: function(e, done) {
+
+        try {
+
+            // Use the custom configuration of the task as the locals
+            var locals = util.merge(e.config, {
+                pretty: !e.options.compress,
+                substrat: e.substrat
+            });
+
+            done(null, jade.render(e.data.toString(), locals));
+
+        } catch(err) {
+            done(err);
+        }
+
+    }
+
+};
+</code></pre>
+
+<ul>
+<li>
+<p><code>mode</code>: <em>Integer</em></p>
+
+<p>One of the following:</p>
+
+<ul>
+<li>
+<p><code>Each</code></p>
+
+<p>Run the task independently for each file, meaning that for five input 
+files the task will be run five times.</p>
+</li>
+<li>
+<p><code>All</code></p>
+
+<p>Run the task once on all files, meaning that for five input files
+the task will be called exactly one time and will be provided with all 
+the files and their data at once.</p>
+</li>
+<li>
+<p><code>Single</code></p>
+
+<p>Run the task once and don't care about the input. Useful for auto 
+generation of files and other things.</p>
+</li>
+</ul>
+</li>
+<li>
+<p><code>data</code>: <em>Boolean|Function(e)</em></p>
+
+<p>Whether or not to automatically read the input file(s) and supply their 
+buffers to the task. Can also be a function which gets passed the <a href="#task-execution-environment">task 
+execution environment</a> and should return a 
+<code>boolean</code>.</p>
+</li>
+<li>
+<p><code>map</code>: <em>Function(e, file)</em></p>
+
+<p>A function which maps the input filename to the respective outputs, can 
+also return an array with multiple output names (e.g. a JS file and its 
+corresponding source map file).</p>
+
+<p>It's arguments consists of the 
+<a href="#task-execution-environment">task execution environment</a> and the path of 
+the file in source directory.</p>
+
+<p>These mappings are used to create the output files of the task in the 
+destination directory.</p>
+
+<p>In addition, they also server to synchronize the destination directory and 
+automatically remove files which are no longer exist in the source.</p>
+
+<p>They are also available via <code>substrat.files(patterns)</code> and can be used to
+automatically include files in HTML and other templates.</p>
+</li>
+<li>
+<p><code>run</code>: <em>Function(e, done(err[, data]))</em></p>
+
+<p>A function which performs the actual task logic.</p>
+
+<p>It's arguments consists of the 
+<a href="#task-execution-environment">task execution environment</a> and a callback 
+function.</p>
+
+<p>The <code>done</code> callback takes the following arguments:</p>
+
+<ul>
+<li>
+<p><code>err</code>: <em>Null|Error</em></p>
+
+<p>The error value in case the task could failed. Pass <code>null</code> if the task
+was successful.A</p>
+</li>
+<li>
+<p><code>data</code>: <em>String|Array[String]</em> (Optional)</p>
+
+<p>The file data to be written into the files indicated by the return 
+value(s) of the handlers <code>map()</code> function.</p>
+
+<p>If left out, no file be written. This can be used by tasks which handle
+the writing on their own (e.g. the <code>copy</code> task which uses streams).</p>
+</li>
+</ul>
+</li>
+</ul><h3>
+<a name="task-execution-environment" class="anchor" href="#task-execution-environment"><span class="octicon octicon-link"></span></a>Task Execution Environment</h3>
+
+<p>This "environment" argument is passed to all functions of a task handler 
+description and has the following structure:</p>
+
+<ul>
+<li>
+<p><code>options</code>: <em>Object</em></p>
+
+<p>A reference to the configuration object passed into <code>substrat.init()</code>.</p>
+</li>
+<li>
+<p><code>config</code>: <em>Object</em></p>
+
+<p>A reference to the configuration object passed into the task constructor.</p>
+</li>
+<li>
+<p><code>mapped</code>: <em>String|Array[String]</em></p>
+
+<p>The filename(s) returned by the <code>map()</code> function of the task handler.</p>
+
+<p><em>Only for tasks running with mode <code>Task.Each</code> or <code>Task.All</code></em></p>
+</li>
+<li>
+<p><code>source</code>: <em>String</em></p>
+
+<p>The filename from the source directory.</p>
+
+<p><em>Only for tasks running with mode <code>Task.Each</code></em></p>
+</li>
+<li>
+<p><code>data</code>: <em>Buffer</em></p>
+
+<p>A <code>Buffer</code> object with the contents of the file reference by <code>source</code>.</p>
+
+<p><em>Only for tasks running with mode <code>Task.Each</code></em></p>
+</li>
+<li>
+<p><code>path</code>: <em>String</em></p>
+
+<p>The full path to the file in the source directory.</p>
+
+<p><em>Only for tasks running with mode <code>Task.Each</code></em></p>
+</li>
+<li>
+<p><code>all</code>: <em>Array[Object]</em></p>
+
+<p>A array of objects with <code>source</code>, <code>data</code> and <code>path</code> properties as described 
+above.</p>
+
+<p><em>Only for tasks running with mode <code>Task.All</code></em></p>
+</li>
+</ul><h2>
+<a name="proxies" class="anchor" href="#proxies"><span class="octicon octicon-link"></span></a>Proxies</h2>
+
+<p>Substrat can be used to quickly configure proxies to both http endpoints as well 
+as local directories, this is done via the <code>substrat.proxy</code> option which takes a 
+mapping of absolute paths to <strong>proxy configuration objects</strong> having the following 
+structure:</p>
+
+<ul>
+<li><p><code>host</code>: <em>String</em></p></li>
+<li><p><code>port</code>: <em>Integer</em></p></li>
+<li><p><code>delay</code>: <em>Integer</em></p></li>
+<li><p><code>root</code>: <em>String</em></p></li>
+<li><p><code>mock</code>: <em>Object</em></p></li>
+</ul><h2>
+<a name="outstanding-features--fixes" class="anchor" href="#outstanding-features--fixes"><span class="octicon octicon-link"></span></a>Outstanding Features / Fixes</h2>
+
+<ul>
+<li>Add a grunt task</li>
+<li>Create a repository with a demo/example project</li>
+<li>Add Support for a <code>Subfile.js</code>
+</li>
+<li>Correctly write out source maps for JS and CSS files</li>
+</ul><h2>
+<a name="license" class="anchor" href="#license"><span class="octicon octicon-link"></span></a>License</h2>
+
+<p><strong>Substrat</strong> is licenses under MIT.</p>
+      </section>
+      <footer>
+        <p>Project maintained by <a href="https://github.com/BonsaiDen">BonsaiDen</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://twitter.com/michigangraham">mattgraham</a></small></p>
+      </footer>
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+    
+  </body>
+</html>
