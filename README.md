@@ -5,6 +5,8 @@
 It's easy and quick to set up, configurable, extendable and built with a focus on 
 single page static / applications in mind.
 
+![npm Details](https://nodei.co/npm/substrat.png)
+
 
 ## Features
 
@@ -133,7 +135,7 @@ single page static / applications in mind.
 
             // Proxy the local couchdb instance to avoid messy CORS setup during 
             // development
-            '/couchdb': {
+            '/couchdb/': {
 
                 // URL is the target of the proxy
                 host: 'localhost',
@@ -146,7 +148,7 @@ single page static / applications in mind.
 
             // Proxy the "public" directory itself but "mock" out a couple of
             // files to inject test mocks / frameworks
-            '/test': {
+            '/test/': {
 
                 // The directory to serve 
                 root: 'public',
@@ -265,7 +267,7 @@ Read on for more details on the configuration options and tasks.
     
     Stops substrat in case it is watching or listening.
 
-    Triggers the `stop` event.
+    Triggers the `done` event.
 
 
 - `pattern(expr)` -> *Pattern*
