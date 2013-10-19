@@ -2,8 +2,8 @@
 
 **Substrat** is a powerful yet simple build system for HTML5 projects. 
 
-It's easy and quick to set up, configurable, extendable and built with a focus on 
-single page static / applications in mind.
+It's easy and quick to set up, configurable, extendable and built with for 
+frontend heavy, single page applications.
 
 ![npm Details](https://nodei.co/npm/substrat.png)
 
