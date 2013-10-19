@@ -1,5 +1,5 @@
 {
-  "version": "0.4.0",
+  "version": "0.4.1",
   "name": "substrat",
   "description": "A powerful yet simple build system for HTML5 projects.",
   "keywords": [
@@ -31,7 +31,8 @@
     "mustache": "~0.7.2",
     "minimatch": "~0.2.12",
     "http-proxy": "~0.10.3",
-    "jade": "~0.35.0"
+    "jade": "~0.35.0",
+    "markdown": "~0.5.0"
   },
   "engines": {
     "node": ">=0.8",

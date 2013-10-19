@@ -19,6 +19,7 @@ single page static / applications in mind.
     - JS Minification (using [UglifyJS](https://github.com/mishoo/UglifyJS2))
     - Stylesheet compilation (using [lesscss](https://github.com/less/less.js))
     - HTML Templating (using [Jade](https://github.com/visionmedia/jade))
+    - Markdown to HTML (using [markdown-js](https://github.com/evilstreak/markdown-js))
     - Generating files from templates (using [mustache.js](https://github.com/janl/mustache.js))
     - Dynamic file generation (using your custom functions)
 
@@ -135,7 +136,7 @@ single page static / applications in mind.
 
             // Proxy the local couchdb instance to avoid messy CORS setup during 
             // development
-            '/couchdb/': {
+            '/couchdb': {
 
                 // URL is the target of the proxy
                 host: 'localhost',
@@ -148,7 +149,7 @@ single page static / applications in mind.
 
             // Proxy the "public" directory itself but "mock" out a couple of
             // files to inject test mocks / frameworks
-            '/test/': {
+            '/test': {
 
                 // The directory to serve 
                 root: 'public',

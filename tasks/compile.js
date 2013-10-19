@@ -2,6 +2,7 @@
 var path = require('path'),
     less = require('less'),
     jade = require('jade'),
+    markdown = require('markdown'),
     uglifyjs = require('uglify-js'),
     Task = require('../lib/task/Task'),
     util = require('../lib/util');
@@ -98,6 +99,28 @@ var types = {
                 });
 
                 done(null, jade.render(e.data.toString(), locals));
+
+            } catch(err) {
+                done(err);
+            }
+
+        }
+
+    },
+
+    markdown: {
+
+        mode: Task.Each,
+        data: true,
+
+        map: function(e, file) {
+            return file.replace(/\.md$/, '.html');
+        },
+
+        run: function(e, done) {
+
+            try {
+                done(null, markdown.markdown.toHTML(e.data.toString()));
 
             } catch(err) {
                 done(err);
