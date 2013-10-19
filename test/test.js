@@ -23,6 +23,8 @@ function getPort(callback) {
 
 }
 
+var debug = +process.env['DEBUG_SUBSTRAT'] === 1;
+
 
 // Test Patterns --------------------------------------------------------------
 // ----------------------------------------------------------------------------
@@ -307,7 +309,9 @@ function run(test, tasks, callback) {
     var sub = substrat.init({
         src: 'test/src',
         dest: 'test/public',
-        quiet: true,
+        quiet: !debug,
+        silent: !debug,
+        debug: debug,
         tasks: tasks || []
     });
 
@@ -513,7 +517,9 @@ function listen(test, tasks, requests, proxy, done) {
     var sub = substrat.init({
         src: 'test/src',
         dest: 'test/public',
-        quiet: true,
+        quiet: !debug,
+        silent: !debug,
+        debug: debug,
         tasks: tasks || [],
         proxy: proxy || {}
     });
@@ -856,18 +862,14 @@ exports.proxy = {
 
     proxy: function(test) {
 
-        console.log('find free port');
         getPort(function(err, port) {
 
             var proxyFuncPath = null,
                 proxyHits = 0;
 
-            console.log('got free port:', port);
-
             // Create a server to proxy
             var s = http.createServer(function(req, res) {
 
-                console.log('test proxy server hit');
                 proxyHits++;
                 res.writeHead(200, {
                     'Content-Type': 'text/plain'
@@ -877,39 +879,32 @@ exports.proxy = {
 
             }).listen(port);
 
-            console.log('start proxy tests');
             listen(test, [], [{
                 path: '/proxy/foo',
                 test: function(test, status, headers, body, delay) {
-                    console.log('proxy assert 1');
                     test.ok(delay < 50, 'Hits proxy server without delay');
                     test.strictEqual(proxyHits, 1, 'Proxied server was hit');
                     test.strictEqual(status, 200);
                     test.strictEqual(body, 'Hello World\n');
-                    console.log('proxy assert 1 done');
                 }
 
             }, {
                 path: '/proxy/delay/foo',
                 test: function(test, status, headers, body, delay) {
-                    console.log('proxy assert 2');
                     test.ok(delay > 90, 'Hits proxy server with delay');
                     test.strictEqual(proxyHits, 2, 'Proxied server was hit');
                     test.strictEqual(status, 200);
                     test.strictEqual(body, 'Hello World\n');
-                    console.log('proxy assert 2 done');
                 }
 
             }, {
                 path: '/proxy/delay/func/foo',
                 test: function(test, status, headers, body, delay) {
-                    console.log('proxy assert 3');
                     test.ok(delay > 150, 'Hits proxy server with delay func');
                     test.strictEqual(proxyHits, 3, 'Proxied server was hit');
                     test.strictEqual(proxyFuncPath, 'foo', 'Delay function got passed correct path');
                     test.strictEqual(status, 200);
                     test.strictEqual(body, 'Hello World\n');
-                    console.log('proxy assert 3 done');
                 }
 
             }], {
@@ -935,7 +930,6 @@ exports.proxy = {
                 }
 
             }, function() {
-                console.log('proxy tests done, close server');
                 s.close();
             });
 
