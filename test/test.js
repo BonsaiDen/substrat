@@ -539,6 +539,10 @@ function listen(test, tasks, requests, proxy, done) {
 
                                 } else {
 
+                                    if (response.headers.hasOwnProperty('content-length')) {
+                                        test.strictEqual(body.length, +response.headers['content-length'], 'Correct content length was served');
+                                    }
+
                                     var delay = Date.now() - start;
                                     req.test(
                                         test, response.statusCode,
@@ -866,7 +870,7 @@ exports.proxy = {
 
                 res.end('Hello World\n');
 
-            }).listen(port, 'localhost');
+            }).listen(port);
 
             listen(test, [], [{
                 path: '/proxy/foo',
