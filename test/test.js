@@ -1,7 +1,27 @@
 var substrat = require('../index'),
     request = require('request'),
     http = require('http'),
+    net = require('net'),
     fs = require('fs.extra');
+
+// Helper ---------------------------------------------------------------------
+function getPort(callback) {
+
+    var server = net.createServer(),
+        port = 0;
+
+    server.on('listening', function() {
+        port = server.address().port;
+        server.close();
+    });
+
+    server.on('close', function() {
+        callback(null, port);
+    });
+
+    server.listen(0);
+
+}
 
 
 // Test Patterns --------------------------------------------------------------
@@ -498,7 +518,7 @@ function listen(test, tasks, requests, proxy, done) {
         proxy: proxy || {}
     });
 
-    var port = 78192;
+    var port = null;
     fs.rmdir('./test/public', function(err) {
 
         sub.once('build', function() {
@@ -552,7 +572,10 @@ function listen(test, tasks, requests, proxy, done) {
             test.done();
         });
 
-        sub.listen('index.html', port);
+        getPort(function(err, p) {
+            port = p;
+            sub.listen('index.html', port);
+        });
 
     });
 
@@ -828,74 +851,77 @@ exports.proxy = {
 
     proxy: function(test) {
 
-        var port = 81231,
-            proxyFuncPath = null,
-            proxyHits = 0;
+        getPort(function(err, port) {
 
-        // Create a server to proxy
-        var s = http.createServer(function(req, res) {
+            var proxyFuncPath = null,
+                proxyHits = 0;
 
-            proxyHits++;
-            res.writeHead(200, {
-                'Content-Type': 'text/plain'
+            // Create a server to proxy
+            var s = http.createServer(function(req, res) {
+
+                proxyHits++;
+                res.writeHead(200, {
+                    'Content-Type': 'text/plain'
+                });
+
+                res.end('Hello World\n');
+
+            }).listen(port, 'localhost');
+
+            listen(test, [], [{
+                path: '/proxy/foo',
+                test: function(test, status, headers, body, delay) {
+                    test.ok(delay < 50, 'Hits proxy server without delay');
+                    test.strictEqual(proxyHits, 1, 'Proxied server was hit');
+                    test.strictEqual(status, 200);
+                    test.strictEqual(body, 'Hello World\n');
+                }
+
+            }, {
+                path: '/proxy/delay/foo',
+                test: function(test, status, headers, body, delay) {
+                    test.ok(delay > 90, 'Hits proxy server with delay');
+                    test.strictEqual(proxyHits, 2, 'Proxied server was hit');
+                    test.strictEqual(status, 200);
+                    test.strictEqual(body, 'Hello World\n');
+                }
+
+            }, {
+                path: '/proxy/delay/func/foo',
+                test: function(test, status, headers, body, delay) {
+                    test.ok(delay > 150, 'Hits proxy server with delay func');
+                    test.strictEqual(proxyHits, 3, 'Proxied server was hit');
+                    test.strictEqual(proxyFuncPath, 'foo', 'Delay function got passed correct path');
+                    test.strictEqual(status, 200);
+                    test.strictEqual(body, 'Hello World\n');
+                }
+
+            }], {
+
+                '/proxy': {
+                    host: 'localhost',
+                    port: port
+                },
+
+                '/proxy/delay/': {
+                    host: 'localhost',
+                    port: port,
+                    delay: 100
+                },
+
+                '/proxy/delay/func/': {
+                    host: 'localhost',
+                    port: port,
+                    delay: function(p) {
+                        proxyFuncPath = p;
+                        return 200;
+                    }
+                }
+
+            }, function() {
+                s.close();
             });
 
-            res.end('Hello World\n');
-
-        }).listen(port, 'localhost');
-
-        listen(test, [], [{
-            path: '/proxy/foo',
-            test: function(test, status, headers, body, delay) {
-                test.ok(delay < 50, 'Hits proxy server without delay');
-                test.strictEqual(proxyHits, 1, 'Proxied server was hit');
-                test.strictEqual(status, 200);
-                test.strictEqual(body, 'Hello World\n');
-            }
-
-        }, {
-            path: '/proxy/delay/foo',
-            test: function(test, status, headers, body, delay) {
-                test.ok(delay > 90, 'Hits proxy server with delay');
-                test.strictEqual(proxyHits, 2, 'Proxied server was hit');
-                test.strictEqual(status, 200);
-                test.strictEqual(body, 'Hello World\n');
-            }
-
-        }, {
-            path: '/proxy/delay/func/foo',
-            test: function(test, status, headers, body, delay) {
-                test.ok(delay > 150, 'Hits proxy server with delay func');
-                test.strictEqual(proxyHits, 3, 'Proxied server was hit');
-                test.strictEqual(proxyFuncPath, 'foo', 'Delay function got passed correct path');
-                test.strictEqual(status, 200);
-                test.strictEqual(body, 'Hello World\n');
-            }
-
-        }], {
-
-            '/proxy': {
-                host: 'localhost',
-                port: port
-            },
-
-            '/proxy/delay/': {
-                host: 'localhost',
-                port: port,
-                delay: 100
-            },
-
-            '/proxy/delay/func/': {
-                host: 'localhost',
-                port: port,
-                delay: function(p) {
-                    proxyFuncPath = p;
-                    return 200;
-                }
-            }
-
-        }, function() {
-            s.close();
         });
 
     }
