@@ -347,43 +347,90 @@ exports.substrat = {
 
 exports.tasks = {
 
-    compile: function(test) {
+    compile: {
 
-        var tasks = [
-            substrat.task.compile(/\.js$/, 'js'),
-            substrat.task.compile(/\.jade$/, 'jade'),
-            substrat.task.compile(/\.less$/, 'less')
-        ];
+        js: function(test) {
 
-        run(test, tasks, function(files, data) {
+            run(test, [substrat.task.compile(/\.js$/, 'js')], function(files, data) {
 
-            test.deepEqual(files, ['index.html', 'test.css', 'test.js']);
-            test.deepEqual(data, [
-                '\n<html>\n  <head></head>\n  <body></body>\n</html>',
-                '#test {\n  color: #ff0000;\n}\n.test {\n  color: #ff0000;\n}\n/*# sourceMappingURL=data:application/json,%7B%22version%22%3A3%2C%22sources%22%3A%5B%22test.less%22%5D%2C%22names%22%3A%5B%5D%2C%22mappings%22%3A%22AAEM%3BEACF%2CcAAA%3B%3BAAGE%3BEACF%2CcAAA%22%7D */',
-                'function test(foo, bar) {\n    return foo + bar + 2;\n}\n'
-            ]);
+                test.deepEqual(files, ['test.js']);
+                test.deepEqual(data, [
+                    'function test(foo, bar) {\n    return foo + bar + 2;\n}\n'
+                ]);
 
-        });
+            });
+
+
+        },
+
+        jade: function(test) {
+
+            run(test, [substrat.task.compile(/\.jade$/, 'jade')], function(files, data) {
+
+                test.deepEqual(files, ['index.html']);
+                test.deepEqual(data, [
+                    '\n<html>\n  <head></head>\n  <body></body>\n</html>'
+                ]);
+
+            });
+
+        },
+
+        less: function(test) {
+
+            run(test, [substrat.task.compile(/\.less$/, 'less')], function(files, data) {
+
+                test.deepEqual(files, ['test.css']);
+                test.deepEqual(data, [
+                    '#test {\n  color: #ff0000;\n}\n.test {\n  color: #ff0000;\n}\n/*# sourceMappingURL=data:application/json,%7B%22version%22%3A3%2C%22sources%22%3A%5B%22test.less%22%5D%2C%22names%22%3A%5B%5D%2C%22mappings%22%3A%22AAEM%3BEACF%2CcAAA%3B%3BAAGE%3BEACF%2CcAAA%22%7D */'
+                ]);
+
+            });
+
+        },
+
+        markdown: function(test) {
+
+            run(test, [substrat.task.compile(/\.md$/, 'markdown')], function(files, data) {
+
+                test.deepEqual(files, ['test.html']);
+                test.deepEqual(data, [
+                    '<h2>Test</h2>\n\n<p>Test.</p>'
+                ]);
+
+            });
+
+        }
 
     },
 
-    concat: function(test) {
+    concat: {
 
-        var tasks = [
-            substrat.task.concat(/\.js$/, 'js', 'all.js'),
-            substrat.task.concat(/\.less$/, 'less', 'all.css')
-        ];
+        js: function(test) {
 
-        run(test, tasks, function(files, data) {
+            run(test, [substrat.task.concat(/\.js$/, 'js', 'all.js'),], function(files, data) {
 
-            test.deepEqual(files, ['all.css', 'all.js']);
-            test.deepEqual(data, [
-                '#test {\n  color: #ff0000;\n}\n.test {\n  color: #ff0000;\n}\n/*# sourceMappingURL=data:application/json,%7B%22version%22%3A3%2C%22sources%22%3A%5B%22input%22%5D%2C%22names%22%3A%5B%5D%2C%22mappings%22%3A%22AAEM%3BEACF%2CcAAA%3B%3BAAGE%3BEACF%2CcAAA%22%7D */',
-                'function test(foo, bar) {\n    return foo + bar + 2;\n}\n'
-            ]);
+                test.deepEqual(files, ['all.js']);
+                test.deepEqual(data, [
+                    'function test(foo, bar) {\n    return foo + bar + 2;\n}\n'
+                ]);
 
-        });
+            });
+
+        },
+
+        less: function(test) {
+
+            run(test, [substrat.task.concat(/\.less$/, 'less', 'all.css')], function(files, data) {
+
+                test.deepEqual(files, ['all.css']);
+                test.deepEqual(data, [
+                    '#test {\n  color: #ff0000;\n}\n.test {\n  color: #ff0000;\n}\n/*# sourceMappingURL=data:application/json,%7B%22version%22%3A3%2C%22sources%22%3A%5B%22input%22%5D%2C%22names%22%3A%5B%5D%2C%22mappings%22%3A%22AAEM%3BEACF%2CcAAA%3B%3BAAGE%3BEACF%2CcAAA%22%7D */',
+                ]);
+
+            });
+
+        }
 
     },
 
