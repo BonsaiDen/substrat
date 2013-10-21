@@ -357,11 +357,12 @@ exports.substrat = {
     init: function(test) {
 
         var sub = run(test, null, function() {
+            test.strictEqual(typeof substrat.pattern, 'function');
+            test.strictEqual(typeof substrat.task, 'object');
             test.strictEqual(typeof sub.run, 'function');
             test.strictEqual(typeof sub.watch, 'function');
             test.strictEqual(typeof sub.listen, 'function');
             test.strictEqual(typeof sub.stop, 'function');
-            test.strictEqual(typeof sub.pattern, 'function');
             test.strictEqual(typeof sub.files, 'function');
         });
 
