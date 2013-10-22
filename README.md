@@ -30,7 +30,7 @@ frontend heavy, single page applications.
     - Add delays to all requests in order to simulate bad networks
 
 - Is easy to extend with your own, custom tasks
-- Completely generic, can be used with (e.g. [Grunt](http://gruntjs.com), [Jake](https://github.com/mde/jake) or any other task runner or in a standlone script)
+- Standalone, can be integrated with [Grunt](http://gruntjs.com), [Jake](https://github.com/mde/jake) or any other task runner or existing build script
 
 
 ## Usage
@@ -297,7 +297,7 @@ treated as `js/app.js`.
 
 ### From Strings
 
-All strings parsed via [minimatch](https://github.com/isaacs/minimatch) and 
+All strings are parsed via [minimatch](https://github.com/isaacs/minimatch) and 
 converted into regular expressions. This means that you can use standard *glob* 
 patterns like `**/*.js` and the like.
 
