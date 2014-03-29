@@ -35,11 +35,12 @@ var template = {
 // Factory --------------------------------------------------------------------
 module.exports = {
 
-    task: function(pattern, data, tags) {
+    task: function(pattern, data, tags, virtual) {
         return new Task('Template', pattern, template, {
             data: data,
             tags: tags || mustache.tags
-        });
+
+        }, virtual);
     }
 
 };
