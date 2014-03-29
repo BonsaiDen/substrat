@@ -1,8 +1,10 @@
 // Dependencies ---------------------------------------------------------------
 var less = require('less'),
+    jade = require('jade'),
     uglifyjs = require('uglify-js'),
     path = require('path'),
-    Task = require('../lib/task/Task');
+    Task = require('../lib/task/Task'),
+    util = require('../lib/util');
 
 
 // Built-in concators ---------------------------------------------------------
@@ -11,6 +13,7 @@ var types = {
     js: {
 
         mode: Task.All,
+        allFiles: true,
 
         data: function(e) {
             return !e.options.compress;
@@ -19,7 +22,12 @@ var types = {
         map: function(e, file) {
 
             if (e.options.compress) {
-                return [file, file + '.map'];
+                if (e.options.sourceMaps !== false) {
+                    return [file, file + '.map'];
+
+                } else {
+                    return [file];
+                }
 
             } else {
                 return file;
@@ -35,17 +43,22 @@ var types = {
                     return f.path;
                 });
 
-                var m = uglifyjs.minify(sources, {
-                    outSourceMap: path.basename(e.path)
-                });
+                if (e.options.sourceMaps !== false) {
 
-                // TODO copy source files so they can be found by the dev tools
-                done(null, [
-                    m.code + '\n//@ sourceMappingURL=' + path.basename(e.mapped[1])
-                           + '\n//# sourceMappingURL=' + path.basename(e.mapped[1]),
+                    var m = uglifyjs.minify(sources, {
+                        outSourceMap: path.basename(e.path)
+                    });
+                    var map = + '\n//@ sourceMappingURL=' + path.basename(e.mapped[1])
+                              + '\n//# sourceMappingURL=' + path.basename(e.mapped[1]);
 
-                    m.map.toString()
-                ]);
+                    done(null, [
+                        m.code + map,
+                        m.map.toString()
+                    ]);
+
+                } else {
+                    done(null, [uglifyjs.minify(sources).code]);
+                }
 
             } else {
 
@@ -65,6 +78,7 @@ var types = {
 
         mode: Task.All,
         data: true,
+        allFiles: true,
 
         map: function(e) {
             return e.config.file;
@@ -83,10 +97,53 @@ var types = {
             // TODO support source maps
             parser.parse(data.join('\n\n'), function(err, tree) {
                 done(err, err || tree.toCSS({
-                    sourceMap: true,
+                    sourceMap: e.options.sourceMaps !== false ? true : false,
                     compress: e.options.compress
                 }));
             });
+
+        }
+
+    },
+
+    jade: {
+
+        mode: Task.All,
+        data: true,
+        allFiles: true,
+
+        map: function(e) {
+            return e.config.file;
+        },
+
+        run: function(e, done) {
+
+            var map = {};
+            for(var i = 0, l = e.all.length; i < l; i++) {
+
+                var raw = e.all[i].data.toString(),
+                    path = e.all[i].source.replace(/\.jade$/, '.html');
+
+                if (e.config.options.prefix) {
+                    path = e.config.options.prefix + path;
+                }
+
+                try {
+
+                    var locals = util.merge(e.config.options.config, {
+                        pretty: !e.options.compress,
+                        substrat: e.substrat
+                    });
+
+                    map[path] = jade.render(raw, locals).replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
+
+                } catch(err) {
+                    return done(err);
+                }
+
+            }
+
+            done(null, e.config.options.template.replace('%s', JSON.stringify(map)));
 
         }
 
@@ -98,7 +155,7 @@ var types = {
 // Factory --------------------------------------------------------------------
 module.exports = {
 
-    task: function(pattern, type, file) {
+    task: function(pattern, type, file, options) {
 
         if (!types.hasOwnProperty(type)) {
             throw new Error('No concatenator found for type "' + type + '"');
@@ -106,7 +163,8 @@ module.exports = {
         } else {
             return new Task('Concat: ' + type, pattern, types[type], {
                 type: type,
-                file: file
+                file: file,
+                options: options
             });
         }
 
