@@ -8,7 +8,6 @@ var template = {
 
     mode: Task.Each,
     data: true,
-    filterFiles: false,
 
     map: function(e, file) {
         return file;
