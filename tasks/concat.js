@@ -13,11 +13,8 @@ var types = {
     js: {
 
         mode: Task.All,
+        data: true,
         allFiles: true,
-
-        data: function(e) {
-            return !e.options.compress;
-        },
 
         map: function(e, file) {
 
@@ -40,14 +37,16 @@ var types = {
             if (e.options.compress) {
 
                 var sources = e.all.map(function(f) {
-                    return f.path;
+                    return f.data.toString();
                 });
 
                 if (e.options.sourceMaps !== false) {
 
                     var m = uglifyjs.minify(sources, {
+                        fromString: true,
                         outSourceMap: path.basename(e.path)
                     });
+
                     var map = + '\n//@ sourceMappingURL=' + path.basename(e.mapped[1])
                               + '\n//# sourceMappingURL=' + path.basename(e.mapped[1]);
 
@@ -57,7 +56,10 @@ var types = {
                     ]);
 
                 } else {
-                    done(null, [uglifyjs.minify(sources).code]);
+                    done(null, [uglifyjs.minify(sources, {
+                        fromString: true
+
+                    }).code]);
                 }
 
             } else {
