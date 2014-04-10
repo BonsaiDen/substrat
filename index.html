@@ -80,7 +80,7 @@ frontend heavy, single page applications.</p>
 </ul>
 </li>
 <li><p>Is easy to extend with your own, custom tasks</p></li>
-<li><p>Completely generic, can be used with (e.g. <a href="http://gruntjs.com">Grunt</a>, <a href="https://github.com/mde/jake">Jake</a> or any other task runner or in a standlone script)</p></li>
+<li>Standalone, can be integrated with <a href="http://gruntjs.com">Grunt</a>, <a href="https://github.com/mde/jake">Jake</a> or any other task runner or existing build script</li>
 </ul><h2>
 <a name="usage" class="anchor" href="#usage"><span class="octicon octicon-link"></span></a>Usage</h2>
 
@@ -223,7 +223,7 @@ frontend heavy, single page applications.</p>
 <li>
 <p>Start your continous build that automatically reloads your browser while you're editing</p>
 
-<div class="highlight highlight-javascript"><pre><span class="nx">s</span><span class="p">.</span><span class="nx">listen</span><span class="p">(</span><span class="mi">4444</span><span class="p">);</span>
+<div class="highlight highlight-javascript"><pre><span class="nx">s</span><span class="p">.</span><span class="nx">listen</span><span class="p">(</span><span class="s1">'index.html'</span><span class="p">,</span> <span class="mi">4444</span><span class="p">);</span>
 </pre></div>
 </li>
 </ol><p>Read on for more details on the configuration options and tasks.</p>
@@ -267,12 +267,25 @@ will automatically be removed.</p>
 <p>When <code>true</code> substrat will ingore any dotfiles.</p>
 </li>
 <li>
+<p><code>excludePattern</code>: <em>RegExp (/..</em>~$/)*</p>
+
+<p>A additional regular expression which will be used to filter all files in 
+the source directory. Defaults to filter common backup files which end with 
+a <code>~</code> (tilde).</p>
+</li>
+<li>
 <p><code>compress</code>: <em>Boolean(false)</em></p>
 
 <p>A flag which indicates to tasks that the should compress / minify their 
 output.</p>
 
 <p>See the <a href="#tasks">Tasks</a> section for more details.</p>
+</li>
+<li>
+<p><code>sourceMaps</code>: <em>Boolean(true)</em></p>
+
+<p>Whether or not to generate source maps for CSS and JavaScript files when 
+performing compression or concatenating tasks.</p>
 </li>
 <li>
 <p><code>depends</code>: <em>Array[Array[Pattern, Pattern|Array[Patterns]]...]</em></p>
@@ -298,6 +311,11 @@ matched from the list of files that have changed.</p>
 
 <p>See the <a href="#proxies">Proxies</a> section for more details.</p>
 </li>
+<li>
+<p><code>cssReload</code>: <em>Boolean(false)</em></p>
+
+<p>Enables in-page reloading of CSS resources without reloading the full page.</p>
+</li>
 </ul><h2>
 <a name="methods" class="anchor" href="#methods"><span class="octicon octicon-link"></span></a>Methods</h2>
 
@@ -322,7 +340,7 @@ automatically.</p>
 
 <p>Same as <code>watch()</code> but will also start a local web server on the specified 
 <code>host</code> and <code>port</code> and will patch the specified <code>indexUrl</code> HTML file to 
-automatically  reload on every build.</p>
+automatically reload on every build.</p>
 
 <p>To disable automatic reloading, simply pass <code>null</code> as the value of <code>indexUrl</code>.</p>
 </li>
@@ -362,7 +380,7 @@ treated as <code>js/app.js</code>.</p>
 <h3>
 <a name="from-strings" class="anchor" href="#from-strings"><span class="octicon octicon-link"></span></a>From Strings</h3>
 
-<p>All strings parsed via <a href="https://github.com/isaacs/minimatch">minimatch</a> and 
+<p>All strings are parsed via <a href="https://github.com/isaacs/minimatch">minimatch</a> and 
 converted into regular expressions. This means that you can use standard <em>glob</em> 
 patterns like <code>**/*.js</code> and the like.</p>
 
@@ -527,7 +545,7 @@ will create directories in the destination as requried.</p>
 <li>
 <p><strong>Template</strong></p>
 
-<p><code>substrat.task.template(pattern, locals [, tags])</code></p>
+<p><code>substrat.task.template(pattern, locals [, tags, virtual])</code></p>
 
 <p>Compiles all files matching the <code>pattern</code> as <code>mustache.js</code> templates and 
 supplies them with <code>locals</code>. The files get rendered to a file with the same 
@@ -535,6 +553,11 @@ name in the <code>dest</code> directory.</p>
 
 <p>The optional<code>tags</code> array can be used to replace the default tags used in 
 mustache templates with custom ones. e.g. <code>['&lt;%', '%&gt;']</code>.</p>
+
+<p>If <code>virtual</code> is set to <code>true</code> the tasks will not generate an actual file on 
+disk, but rather a virtual which essentially replaces the <code>src</code> for the 
+duration of the build. This allows templated files to be picked up by 
+concators and other tasks.</p>
 
 <p><strong>Example: Rendering configuration file with custom tags to keep it JSHint friendly</strong></p>
 
