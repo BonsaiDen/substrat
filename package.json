@@ -36,7 +36,7 @@
     "file-pattern": "~0.5.0"
   },
   "engines": {
-    "node": ">=0.8",
+    "node": ">=0.10",
     "npm": ">= 1"
   },
   "scripts": {
