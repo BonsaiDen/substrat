@@ -101,6 +101,7 @@ var types = {
                 done(null, jade.render(e.data.toString(), locals));
 
             } catch(err) {
+                err.filename = e.source;
                 done(err);
             }
 
@@ -123,6 +124,7 @@ var types = {
                 done(null, markdown.markdown.toHTML(e.data.toString()));
 
             } catch(err) {
+                err.filename = e.source;
                 done(err);
             }
 

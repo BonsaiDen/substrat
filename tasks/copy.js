@@ -21,11 +21,13 @@ var copy = {
 
             var reader = fs.createReadStream(e.path);
             reader.on('error', function(err) {
+                err.filename = e.path;
                 done(err);
             });
 
             var writer = fs.createWriteStream(dest);
             writer.on('error', function(err) {
+                err.filename = e.path;
                 done(err);
             });
 

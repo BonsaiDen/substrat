@@ -23,8 +23,14 @@ var template = {
             locals = e.config.data;
         }
 
-        var template = mustache.compile(e.data.toString(), e.config.tags);
-        done(null, template(locals));
+        try {
+            var template = mustache.compile(e.data.toString(), e.config.tags);
+            done(null, template(locals));
+
+        } catch(err) {
+            err.filename = e.source || '';
+            done(err);
+        }
 
     }
 

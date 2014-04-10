@@ -140,6 +140,7 @@ var types = {
                     map[path] = jade.render(raw, locals).replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
 
                 } catch(err) {
+                    err.filename = e.all[i].source;
                     return done(err);
                 }
 
