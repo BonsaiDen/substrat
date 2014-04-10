@@ -24,8 +24,14 @@ var template = {
         }
 
         try {
-            var template = mustache.compile(e.data.toString(), e.config.tags);
-            done(null, template(locals));
+
+            var oldTags = mustache.tags;
+            mustache.tags = e.config.tags;
+
+            var rendered = mustache.render(e.data.toString(), locals);
+            mustache.tags = oldTags;
+
+            done(null, rendered);
 
         } catch(err) {
             err.filename = e.source || '';

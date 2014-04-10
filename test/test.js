@@ -1,5 +1,6 @@
 var substrat = require('../index'),
     request = require('request'),
+    path = require('path'),
     http = require('http'),
     net = require('net'),
     fs = require('fs.extra');
@@ -319,7 +320,8 @@ function run(test, tasks, callback, options) {
         tasks: tasks || []
     });
 
-    fs.rmdir('./test/public', function(err) {
+    var dir = path.join(__dirname, 'public');
+    fs.rmdir(dir, function(err) {
 
         sub.once('done', function() {
 
@@ -327,10 +329,10 @@ function run(test, tasks, callback, options) {
                 data = null;
 
             try {
-                files = fs.readdirSync('test/public').sort();
+                files = fs.readdirSync(dir).sort();
                 data = new Array(files.length);
                 files.forEach(function(file, index) {
-                    data[index] = fs.readFileSync('test/public/' + file).toString();
+                    data[index] = fs.readFileSync(path.join(dir, file)).toString();
                 });
 
             } catch(e) {
@@ -411,7 +413,7 @@ exports.tasks = {
 
                 test.deepEqual(files, ['test.css']);
                 test.deepEqual(data, [
-                    '#test {\n  color: #ff0000;\n}\n.test {\n  color: #ff0000;\n}\n/*# sourceMappingURL=data:application/json,%7B%22version%22%3A3%2C%22sources%22%3A%5B%22test.less%22%5D%2C%22names%22%3A%5B%5D%2C%22mappings%22%3A%22AAEM%3BEACF%2CcAAA%3B%3BAAGE%3BEACF%2CcAAA%22%7D */'
+                    '#test {\n  color: #ff0000;\n}\n.test {\n  color: #ff0000;\n}\n/*# sourceMappingURL=data:application/json,%7B%22version%22%3A3%2C%22sources%22%3A%5B%22test.less%22%5D%2C%22names%22%3A%5B%5D%2C%22mappings%22%3A%22AAEA%3BEACI%2CcAAA%3B%3BAAGJ%3BEACI%2CcAAA%22%7D */'
                 ]);
 
             });
@@ -454,7 +456,7 @@ exports.tasks = {
 
                 test.deepEqual(files, ['all.css']);
                 test.deepEqual(data, [
-                    '#test {\n  color: #ff0000;\n}\n.test {\n  color: #ff0000;\n}\n/*# sourceMappingURL=data:application/json,%7B%22version%22%3A3%2C%22sources%22%3A%5B%22input%22%5D%2C%22names%22%3A%5B%5D%2C%22mappings%22%3A%22AAEM%3BEACF%2CcAAA%3B%3BAAGE%3BEACF%2CcAAA%22%7D */',
+                    '#test {\n  color: #ff0000;\n}\n.test {\n  color: #ff0000;\n}\n/*# sourceMappingURL=data:application/json,%7B%22version%22%3A3%2C%22sources%22%3A%5B%22input%22%5D%2C%22names%22%3A%5B%5D%2C%22mappings%22%3A%22AAEA%3BEACI%2CcAAA%3B%3BAAGJ%3BEACI%2CcAAA%22%7D */'
                 ]);
 
             });
@@ -701,7 +703,7 @@ exports.listen = {
             test: function(test, status, headers, body) {
                 test.strictEqual(headers['content-type'], 'text/css; charset=UTF-8');
                 test.strictEqual(status, 200);
-                test.strictEqual(body, '#test {\n  color: #ff0000;\n}\n.test {\n  color: #ff0000;\n}\n/*# sourceMappingURL=data:application/json,%7B%22version%22%3A3%2C%22sources%22%3A%5B%22test.less%22%5D%2C%22names%22%3A%5B%5D%2C%22mappings%22%3A%22AAEM%3BEACF%2CcAAA%3B%3BAAGE%3BEACF%2CcAAA%22%7D */');
+                test.strictEqual(body, '#test {\n  color: #ff0000;\n}\n.test {\n  color: #ff0000;\n}\n/*# sourceMappingURL=data:application/json,%7B%22version%22%3A3%2C%22sources%22%3A%5B%22test.less%22%5D%2C%22names%22%3A%5B%5D%2C%22mappings%22%3A%22AAEA%3BEACI%2CcAAA%3B%3BAAGJ%3BEACI%2CcAAA%22%7D */');
             }
 
         }, {
@@ -772,7 +774,7 @@ exports.proxy = {
             test: function(test, status, headers, body) {
                 test.strictEqual(headers['content-type'], 'text/css; charset=UTF-8');
                 test.strictEqual(status, 200);
-                test.strictEqual(body, '#test {\n  color: #ff0000;\n}\n.test {\n  color: #ff0000;\n}\n/*# sourceMappingURL=data:application/json,%7B%22version%22%3A3%2C%22sources%22%3A%5B%22test.less%22%5D%2C%22names%22%3A%5B%5D%2C%22mappings%22%3A%22AAEM%3BEACF%2CcAAA%3B%3BAAGE%3BEACF%2CcAAA%22%7D */');
+                test.strictEqual(body, '#test {\n  color: #ff0000;\n}\n.test {\n  color: #ff0000;\n}\n/*# sourceMappingURL=data:application/json,%7B%22version%22%3A3%2C%22sources%22%3A%5B%22test.less%22%5D%2C%22names%22%3A%5B%5D%2C%22mappings%22%3A%22AAEA%3BEACI%2CcAAA%3B%3BAAGJ%3BEACI%2CcAAA%22%7D */');
             }
 
         }, {

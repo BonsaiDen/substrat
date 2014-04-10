@@ -17,7 +17,8 @@ var copy = {
     run: function(e, done) {
 
         var dest = path.join(e.options.dest, e.mapped);
-        fs.mkdirp(path.dirname(dest), function() {
+        fs.mkdirp(path.dirname(dest), function(err) {
+
 
             var reader = fs.createReadStream(e.path);
             reader.on('error', function(err) {
