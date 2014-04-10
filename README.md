@@ -209,6 +209,12 @@ Read on for more details on the configuration options and tasks.
 
     When `true` substrat will ingore any dotfiles.
 
+- `excludePattern`: *RegExp (/\..*~$/)*
+
+    A additional regular expression which will be used to filter all files in 
+    the source directory. Defaults to filter common backup files which end with 
+    a `~` (tilde).
+
 - `compress`: *Boolean(false)*
 
     A flag which indicates to tasks that the should compress / minify their 
@@ -264,7 +270,7 @@ Read on for more details on the configuration options and tasks.
 
     Same as `watch()` but will also start a local web server on the specified 
     `host` and `port` and will patch the specified `indexUrl` HTML file to 
-    automatically  reload on every build.
+    automatically reload on every build.
 
     To disable automatic reloading, simply pass `null` as the value of `indexUrl`.
 

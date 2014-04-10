@@ -304,13 +304,17 @@ exports.patterns = {
 
 };
 
-function run(test, tasks, callback) {
+function run(test, tasks, callback, options) {
+
+    options = options || {};
 
     var sub = substrat.init({
         src: 'test/src',
         dest: 'test/public',
         quiet: !debug,
         silent: !debug,
+        hidden: options.hidden,
+        excludePattern: options.excludePattern,
         debug: debug,
         tasks: tasks || []
     });
@@ -433,7 +437,7 @@ exports.tasks = {
 
         js: function(test) {
 
-            run(test, [substrat.task.concat(/\.js$/, 'js', 'all.js'),], function(files, data) {
+            run(test, [substrat.task.concat(/\.js$/, 'js', 'all.js')], function(files, data) {
 
                 test.deepEqual(files, ['all.js']);
                 test.deepEqual(data, [
@@ -506,6 +510,68 @@ exports.tasks = {
             ]);
             test.deepEqual(files, ['test.json']);
 
+        });
+
+    },
+
+    excludePattern: function(test) {
+
+        var tasks = [
+            substrat.task.copy('*')
+        ];
+
+        run(test, tasks, function(files, data) {
+
+            test.deepEqual(files, [
+                'backup~',
+                'index.jade',
+                'test.json',
+                'test.less',
+                'test.md'
+            ]);
+
+            test.deepEqual(data, [
+                '',
+                'html\n  head\n\n  body\n',
+                '{\n    "string": \'"{{{String}}}"\',\n    "object": "{{{Object}}}"\n}\n',
+                '@red: #ff0000;\n\n#test {\n    color: @red;\n}\n\n.test {\n    color: @red;\n}\n\n',
+                '## Test\n\nTest.\n'
+            ]);
+
+        }, {
+            excludePattern: /\.js$/
+        });
+
+    },
+
+    dotFiles: function(test) {
+
+        var tasks = [
+            substrat.task.copy('*')
+        ];
+
+        run(test, tasks, function(files, data) {
+
+            test.deepEqual(files, [
+                '.dotfile',
+                'index.jade',
+                'test.js',
+                'test.json',
+                'test.less',
+                'test.md'
+            ]);
+
+            test.deepEqual(data, [
+                '',
+                'html\n  head\n\n  body\n',
+                'function test(foo, bar) {\n    return foo + bar + 2;\n}\n',
+                '{\n    "string": \'"{{{String}}}"\',\n    "object": "{{{Object}}}"\n}\n',
+                '@red: #ff0000;\n\n#test {\n    color: @red;\n}\n\n.test {\n    color: @red;\n}\n\n',
+                '## Test\n\nTest.\n'
+            ]);
+
+        }, {
+            hidden: false
         });
 
     }
