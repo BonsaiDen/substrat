@@ -222,7 +222,7 @@ Read on for more details on the configuration options and tasks.
 
     See the [Tasks](#tasks) section for more details.
 
-- `sourceMaps`: `Boolean(true)`
+- `sourceMaps`: *Boolean(true)*
 
     Whether or not to generate source maps for CSS and JavaScript files when 
     performing compression or concatenating tasks.
@@ -247,6 +247,10 @@ Read on for more details on the configuration options and tasks.
     A mapping of paths to proxy configurations.
 
     See the [Proxies](#proxies) section for more details.
+
+- `cssReload`: *Boolean(false)*
+
+    Enables in-page reloading of CSS resources without reloading the full page.
 
 
 ## Methods
