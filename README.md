@@ -173,7 +173,7 @@ frontend heavy, single page applications.
 5. Start your continous build that automatically reloads your browser while you're editing
 
     ```javascript
-    s.listen(4444);
+    s.listen('index.html', 4444);
     ```
 
 Read on for more details on the configuration options and tasks.
