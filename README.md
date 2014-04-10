@@ -216,6 +216,11 @@ Read on for more details on the configuration options and tasks.
 
     See the [Tasks](#tasks) section for more details.
 
+- `sourceMaps`: `Boolean(true)`
+
+    Whether or not to generate source maps for CSS and JavaScript files when 
+    performing compression or concatenating tasks.
+
 - `depends`: *Array[Array[Pattern, Pattern|Array[Patterns]]...]*
 
     A array containing arrays of patterns which specify which files should be 
@@ -448,7 +453,7 @@ Tasks in substrat are highly configurable and easy to extend.
 
 - __Template__
 
-    `substrat.task.template(pattern, locals [, tags])`
+    `substrat.task.template(pattern, locals [, tags, virtual])`
 
     Compiles all files matching the `pattern` as `mustache.js` templates and 
     supplies them with `locals`. The files get rendered to a file with the same 
@@ -456,6 +461,11 @@ Tasks in substrat are highly configurable and easy to extend.
 
     The optional`tags` array can be used to replace the default tags used in 
     mustache templates with custom ones. e.g. `['<%', '%>']`.
+
+    If `virtual` is set to `true` the tasks will not generate an actual file on 
+    disk, but rather a virtual which essentially replaces the `src` for the 
+    duration of the build. This allows templated files to be picked up by 
+    concators and other tasks.
 
     __Example: Rendering configuration file with custom tags to keep it JSHint friendly__
 
