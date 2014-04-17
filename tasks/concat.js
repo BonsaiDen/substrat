@@ -89,7 +89,14 @@ var types = {
         run: function(e, done) {
 
             var data = e.all.map(function(f) {
-                return f.data.toString();
+
+                var src = f.data.toString();
+                if (e.config.options.pathPrefix) {
+                    src = src.replace(/url\(("|'|)/g, 'url($1' + e.config.options.pathPrefix);
+                }
+
+                return src;
+
             });
 
             var parser = new less.Parser({

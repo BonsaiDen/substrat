@@ -69,8 +69,13 @@ var types = {
                 filename: e.source
             });
 
+            var src = e.data.toString();
+            if (e.config.pathPrefix) {
+                src = src.replace(/url\(("|'|)/g, 'url($1' + e.config.pathPrefix);
+            }
+
             // TODO support source maps
-            parser.parse(e.data.toString(), function(err, tree) {
+            parser.parse(src, function(err, tree) {
                 done(err, err || tree.toCSS({
                     sourceMap: true,
                     compress: e.options.compress
