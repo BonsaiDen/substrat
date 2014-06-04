@@ -32,18 +32,27 @@ var types = {
 
             if (e.options.compress) {
 
-                var m = uglifyjs.minify(e.path, {
-                    sourceRoot: path.dirname(e.options.dest),
-                    outSourceMap: path.basename(e.path)
-                });
+                if (e.options.sourceMaps !== false) {
 
-                // TODO copy source files so they can be found by the dev tools
-                done(null, [
-                    m.code + '\n//@ sourceMappingURL=' + path.basename(e.mapped[1])
-                           + '\n//# sourceMappingURL=' + path.basename(e.mapped[1]),
+                    var m = uglifyjs.minify(e.path, {
+                        sourceRoot: path.dirname(e.options.dest),
+                        outSourceMap: path.basename(e.path)
+                    });
 
-                    m.map.toString()
-                ]);
+                    // TODO copy source files so they can be found by the dev tools
+                    done(null, [
+                        m.code + '\n//@ sourceMappingURL=' + path.basename(e.mapped[1])
+                               + '\n//# sourceMappingURL=' + path.basename(e.mapped[1]),
+
+                        m.map.toString()
+                    ]);
+
+                } else {
+                    done(null, [uglifyjs.minify(e.path, {
+                        compress: e.config.options.compress || {}
+
+                    }).code]);
+                }
 
             } else {
                 done(null, e.data.toString());
@@ -74,7 +83,6 @@ var types = {
                 src = src.replace(/url\(("|'|)/g, 'url($1' + e.config.pathPrefix);
             }
 
-            // TODO support source maps
             parser.parse(src, function(err, tree) {
                 done(err, err || tree.toCSS({
                     sourceMap: true,

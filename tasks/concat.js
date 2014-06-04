@@ -57,7 +57,8 @@ var types = {
 
                 } else {
                     done(null, [uglifyjs.minify(sources, {
-                        fromString: true
+                        fromString: true,
+                        compress: e.config.options.compress || {}
 
                     }).code]);
                 }
@@ -93,6 +94,12 @@ var types = {
                 var src = f.data.toString();
                 if (e.config.options.pathPrefix) {
                     src = src.replace(/url\(("|'|)/g, 'url($1' + e.config.options.pathPrefix);
+
+                } else {
+                    var base = path.dirname(f.source);
+                    src = src.replace(/url\(("|'|)/g, function(m, l) {
+                        return 'url(' + l + base + '/';
+                    });
                 }
 
                 return src;
@@ -174,7 +181,7 @@ module.exports = {
             return new Task('Concat: ' + type, pattern, types[type], {
                 type: type,
                 file: file,
-                options: options
+                options: options || {}
             });
         }
 
