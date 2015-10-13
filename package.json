@@ -22,7 +22,7 @@
     "url": "https://github.com/BonsaiDen/substrat/issues"
   },
   "dependencies": {
-    "chokidar": "1.0.3",
+    "chokidar": "1.1.0",
     "colors": "0.6.2",
     "file-pattern": "~0.5.0",
     "fs.extra": "1.2.1",
